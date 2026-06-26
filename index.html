@@ -1,133 +1,40 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UNHS ILAW Lesson Planner</title>
-
-    <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/style.css">
-</head>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ILAW Teacher Studio - UNHS Edition</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css"></head>
 <body>
-
-<nav class="navbar navbar-dark bg-primary shadow">
-    <div class="container">
-        <span class="navbar-brand fw-bold">
-            📘 UNHS ILAW Lesson Planner
-        </span>
-    </div>
-</nav>
-
-<div class="container mt-4">
-
-    <div class="text-center mb-5">
-        <h2>Welcome!</h2>
-        <p class="text-muted">
-            Browser-Based ILAW Lesson Plan Generator
-        </p>
-    </div>
-
-    <div class="row g-4">
-
-        <div class="col-md-4">
-            <div class="card shadow h-100">
-                <div class="card-body text-center">
-
-                    <h1>📄</h1>
-
-                    <h4>New Lesson</h4>
-
-                    <p>Create a new 5-Day ILAW Lesson Plan.</p>
-
-                    <button class="btn btn-primary w-100">
-                        Create Lesson
-                    </button>
-
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-
-            <div class="card shadow h-100">
-
-                <div class="card-body text-center">
-
-                    <h1>📂</h1>
-
-                    <h4>Open Lesson</h4>
-
-                    <p>Open previously saved lesson.</p>
-
-                    <button class="btn btn-success w-100">
-                        Open
-                    </button>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="col-md-4">
-
-            <div class="card shadow h-100">
-
-                <div class="card-body text-center">
-
-                    <h1>⚙️</h1>
-
-                    <h4>Settings</h4>
-
-                    <p>Configure the application.</p>
-
-                    <button class="btn btn-secondary w-100">
-                        Settings
-                    </button>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <div class="mt-5">
-
-        <div class="card shadow">
-
-            <div class="card-header bg-primary text-white">
-
-                <h5 class="mb-0">
-
-                    Recent Lessons
-
-                </h5>
-
-            </div>
-
-            <div class="card-body">
-
-                <p class="text-muted">
-
-                    No lessons available.
-
-                </p>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-<script src="js/app.js"></script>
-
-</body>
-</html>
+<nav class="navbar navbar-dark bg-primary"><div class="container-fluid">
+<span class="navbar-brand">📘 ILAW Teacher Studio - UNHS Edition</span>
+<div><button class="btn btn-light btn-sm">New</button> <button class="btn btn-light btn-sm">Save</button> <button class="btn btn-light btn-sm">Print</button> <button class="btn btn-warning btn-sm">Export Word</button></div>
+</div></nav>
+<div class="container-fluid mt-3"><div class="row">
+<div class="col-lg-3"><div class="card"><div class="card-header">Lesson Information</div><div class="card-body">
+<label>Template</label>
+<div><input type="radio" name="template" checked> 5-Day <input type="radio" name="template"> 4-Day</div>
+<input id="learningArea" class="form-control mt-2" placeholder="Learning Area">
+<input id="grade" class="form-control mt-2" placeholder="Grade Level">
+<input class="form-control mt-2" placeholder="Section">
+<select id="term" class="form-select mt-2"><option>First Term</option><option>Second Term</option><option>Third Term</option></select>
+<input id="week" class="form-control mt-2" placeholder="Week">
+<input id="lessonTitle" class="form-control mt-2" placeholder="Lesson Title">
+<input id="topic" class="form-control mt-2" placeholder="Topic">
+<textarea id="competency" class="form-control mt-2" placeholder="Learning Competency"></textarea>
+<button id="generateBtn" class="btn btn-success w-100 mt-3">Generate Lesson</button>
+</div></div></div>
+<div class="col-lg-5"><div class="card"><div class="card-header">Lesson Editor</div><div class="card-body">
+<ul class="nav nav-tabs mb-3"><li class="nav-item"><span class="nav-link active">Intentions</span></li><li class="nav-item"><span class="nav-link">Learning Experience</span></li><li class="nav-item"><span class="nav-link">Assessment</span></li><li class="nav-item"><span class="nav-link">Ways Forward</span></li></ul>
+<textarea class="form-control mb-2" rows="3" placeholder="Learning Objectives"></textarea>
+<textarea class="form-control mb-2" rows="2" placeholder="Learner Context"></textarea>
+<textarea class="form-control mb-2" rows="2" placeholder="Pre-Lesson"></textarea>
+<textarea class="form-control mb-2" rows="2" placeholder="Day 1"></textarea>
+<textarea class="form-control mb-2" rows="2" placeholder="Day 2"></textarea>
+<textarea class="form-control mb-2" rows="2" placeholder="Day 3"></textarea>
+<textarea class="form-control mb-2" rows="2" placeholder="Day 4"></textarea>
+<div id="day5Container"><textarea class="form-control" rows="2" placeholder="Day 5"></textarea></div>
+</div></div></div>
+<div class="col-lg-4"><div class="card"><div class="card-header bg-success text-white">Live Preview</div><div class="card-body"><div id="preview"><h5>No lesson generated.</h5></div></div></div></div>
+</div></div>
+<script src="js/app.js"></script><script src="js/generator.js"></script><script src="js/preview.js"></script><script src="js/storage.js"></script>
+</body></html>

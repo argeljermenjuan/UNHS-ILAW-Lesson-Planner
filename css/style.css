@@ -1,10 +1,89 @@
-body{
+/* ===================================================
+   UNHS ILAW Lesson Planner
+   Version 0.1
+   Author: Argel Jermen Juan & ChatGPT
+=================================================== */
 
-    background:#f4f7fb;
+/* ---------- Google Font ---------- */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
-    font-family:Arial, Helvetica, sans-serif;
+/* ---------- Root Colors ---------- */
+:root{
+
+    --primary:#0d6efd;
+    --secondary:#198754;
+    --light:#f4f7fb;
+    --white:#ffffff;
+    --dark:#212529;
+    --gray:#6c757d;
+    --border:#dee2e6;
 
 }
+
+/* ---------- Global ---------- */
+
+*{
+
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+
+}
+
+body{
+
+    font-family:'Poppins',sans-serif;
+    background:var(--light);
+    color:var(--dark);
+
+}
+
+/* ---------- Navbar ---------- */
+
+.navbar{
+
+    height:70px;
+
+}
+
+.navbar-brand{
+
+    font-size:22px;
+    font-weight:700;
+
+}
+
+/* ---------- Sidebar ---------- */
+
+.sidebar{
+
+    min-height:calc(100vh - 70px);
+
+    background:#fff;
+
+    border-right:1px solid #ddd;
+
+}
+
+.sidebar button{
+
+    text-align:left;
+
+    border-radius:10px;
+
+    padding:12px;
+
+    transition:.25s;
+
+}
+
+.sidebar button:hover{
+
+    transform:translateX(4px);
+
+}
+
+/* ---------- Cards ---------- */
 
 .card{
 
@@ -12,30 +91,258 @@ body{
 
     border-radius:15px;
 
-}
+    overflow:hidden;
 
-.card:hover{
-
-    transform:translateY(-5px);
-
-    transition:.3s;
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
 
 }
+
+.card-header{
+
+    padding:15px 20px;
+
+}
+
+.card-body{
+
+    padding:25px;
+
+}
+
+/* ---------- Labels ---------- */
+
+label{
+
+    font-weight:600;
+
+    margin-bottom:8px;
+
+}
+
+/* ---------- Inputs ---------- */
+
+.form-control,
+.form-select{
+
+    border-radius:10px;
+
+    min-height:48px;
+
+}
+
+textarea.form-control{
+
+    min-height:120px;
+
+}
+
+/* ---------- Buttons ---------- */
 
 .btn{
 
     border-radius:10px;
 
-}
+    padding:10px 20px;
 
-.navbar{
-
-    padding:15px;
+    font-weight:500;
 
 }
 
-h2{
+.btn-success{
 
-    font-weight:bold;
+    background:var(--secondary);
+
+    border:none;
+
+}
+
+.btn-success:hover{
+
+    background:#157347;
+
+}
+
+/* ---------- Preview ---------- */
+
+#preview{
+
+    min-height:250px;
+
+    padding:20px;
+
+    border:2px dashed #ccc;
+
+    border-radius:12px;
+
+    background:#fafafa;
+
+}
+
+/* ---------- Lesson Output ---------- */
+
+.lesson-section{
+
+    margin-bottom:25px;
+
+}
+
+.lesson-section h4{
+
+    color:var(--primary);
+
+    margin-bottom:10px;
+
+}
+
+.lesson-section ul{
+
+    padding-left:20px;
+
+}
+
+.lesson-section li{
+
+    margin-bottom:6px;
+
+}
+
+/* ---------- Tables ---------- */
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+}
+
+table th{
+
+    background:#0d6efd;
+
+    color:#fff;
+
+}
+
+table th,
+table td{
+
+    border:1px solid #ddd;
+
+    padding:10px;
+
+}
+
+/* ---------- Footer ---------- */
+
+footer{
+
+    text-align:center;
+
+    color:#777;
+
+    margin-top:40px;
+
+}
+
+/* ---------- Scrollbar ---------- */
+
+::-webkit-scrollbar{
+
+    width:8px;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+    background:#b5b5b5;
+
+    border-radius:20px;
+
+}
+
+::-webkit-scrollbar-thumb:hover{
+
+    background:#888;
+
+}
+
+/* ---------- Animation ---------- */
+
+.card{
+
+    animation:fadeIn .5s ease;
+
+}
+
+@keyframes fadeIn{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(15px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
+
+}
+
+/* ---------- Responsive ---------- */
+
+@media(max-width:992px){
+
+.sidebar{
+
+    min-height:auto;
+
+}
+
+}
+
+@media(max-width:768px){
+
+.navbar-brand{
+
+    font-size:18px;
+
+}
+
+.sidebar{
+
+    border-right:none;
+
+    border-bottom:1px solid #ddd;
+
+}
+
+.card-body{
+
+    padding:18px;
+
+}
+
+#preview{
+
+    min-height:180px;
+
+}
+
+}
+
+@media(max-width:576px){
+
+.btn{
+
+    width:100%;
+
+}
 
 }
