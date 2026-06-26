@@ -21,6 +21,8 @@ const App = {
     this.preview = document.getElementById("preview");
     this.statusMessage = document.getElementById("statusMessage");
     this.newBtn = document.getElementById("newBtn");
+    this.generatePlanBtn = document.getElementById("generatePlanBtn");
+    this.generatePlanBtnInline = document.getElementById("generatePlanBtnInline");
     this.saveBtn = document.getElementById("saveBtn");
     this.printBtn = document.getElementById("printBtn");
     this.wordBtn = document.getElementById("wordBtn");
@@ -40,6 +42,8 @@ const App = {
     }));
 
     this.newBtn?.addEventListener("click", () => this.resetForm());
+    this.generatePlanBtn?.addEventListener("click", () => this.generateILAWPlan());
+    this.generatePlanBtnInline?.addEventListener("click", () => this.generateILAWPlan());
     this.saveBtn?.addEventListener("click", () => this.saveLessonToLibrary());
     this.printBtn?.addEventListener("click", () => PreviewManager.print());
     this.wordBtn?.addEventListener("click", () => PreviewManager.exportWord());
@@ -56,6 +60,7 @@ const App = {
     return {
       templateMode: this.getTemplateMode(),
       learningArea: document.getElementById("learningArea")?.value || "",
+      teacherName: document.getElementById("teacherName")?.value || "",
       grade: document.getElementById("grade")?.value || "",
       section: document.getElementById("section")?.value || "",
       term: document.getElementById("term")?.value || "",
@@ -73,8 +78,12 @@ const App = {
       day4: document.getElementById("day4")?.value || "",
       day5: document.getElementById("day5")?.value || "",
       resources: document.getElementById("resources")?.value || "",
+      references: document.getElementById("references")?.value || "",
+      integration: document.getElementById("integration")?.value || "",
       assessment: document.getElementById("assessment")?.value || "",
-      waysForward: document.getElementById("waysForward")?.value || ""
+      waysForward: document.getElementById("waysForward")?.value || "",
+      reflections: document.getElementById("reflections")?.value || "",
+      aiUse: document.getElementById("aiUse")?.value || ""
     };
   },
 
@@ -92,11 +101,27 @@ const App = {
   renderPreview() {
     const data = this.getFormData();
     if (typeof LessonGenerator !== "undefined") {
-      this.preview.innerHTML = LessonGenerator.buildLesson(data);
+      const html = LessonGenerator.buildLesson(data);
+      this.preview.innerHTML = html;
       PreviewManager.initialize();
     } else {
-      this.preview.innerHTML = '<div class="empty-preview"><div><div class="empty-preview-icon">📝</div><h5>Preview ready</h5><p>Lesson content will appear here as you type.</p></div></div>';
+      this.preview.innerHTML = '<div class="empty-preview"><div><div class="empty-preview-icon">📝</div><h5>Preview ready</h5><p>Enter the lesson details and generate the ILAW plan.</p></div></div>';
     }
+  },
+
+  generateILAWPlan() {
+    const data = this.getFormData();
+    const hasCoreText = [data.lessonTitle, data.topic, data.competency].some((value) => value.trim().length > 0);
+
+    if (!hasCoreText) {
+      this.setStatus("Enter a lesson title, topic, or competency to generate the plan.");
+      return;
+    }
+
+    this.saveDraft();
+    this.preview.innerHTML = LessonGenerator.buildLesson(data);
+    PreviewManager.initialize();
+    this.setStatus("ILAW lesson plan generated");
   },
 
   saveDraft() {

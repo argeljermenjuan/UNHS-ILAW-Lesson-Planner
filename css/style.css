@@ -246,9 +246,118 @@ textarea.form-control {
   color: var(--text);
 }
 
-.lesson-preview h3 {
-  color: var(--primary-dark);
-  margin-bottom: 6px;
+.annex-preview {
+  font-family: "Times New Roman", Times, serif;
+  color: #111827;
+  min-width: 920px;
+}
+
+.annex-preview h3 {
+  color: #111827;
+  font-size: 1.2rem;
+  margin: 0 0 14px;
+  text-align: center;
+}
+
+.annex-label {
+  margin: 0;
+  font-weight: 700;
+}
+
+.annex-meta-table,
+.annex-session-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  background: #fff;
+  margin-bottom: 16px;
+}
+
+.annex-meta-table th,
+.annex-meta-table td,
+.annex-session-table th,
+.annex-session-table td {
+  border: 1px solid #222;
+  padding: 8px;
+  vertical-align: top;
+  font-size: 0.88rem;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.annex-meta-table th {
+  width: 28%;
+  text-align: left;
+  font-weight: 700;
+}
+
+.annex-meta-table td {
+  min-height: 34px;
+}
+
+.annex-session-table thead th {
+  background: #c1f0c7;
+  text-align: center;
+  font-weight: 700;
+}
+
+.annex-session-table .annex-row-label {
+  width: 22%;
+  background: #fff;
+}
+
+.annex-session-table tbody th {
+  width: 22%;
+  text-align: left;
+  font-weight: 400;
+}
+
+.annex-session-table tbody th span {
+  display: block;
+  font-style: italic;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.annex-section-row th {
+  font-weight: 700;
+}
+
+.annex-section-row td {
+  font-style: italic;
+  background: #fbfffb;
+}
+
+.blank-entry {
+  color: #8a8a8a;
+  font-style: italic;
+}
+
+.signature-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+  margin-top: 28px;
+  font-family: Arial, sans-serif;
+}
+
+.signature-grid p {
+  margin: 0 0 28px;
+  font-size: 0.85rem;
+}
+
+.signature-grid strong {
+  display: block;
+  min-height: 24px;
+  border-bottom: 1px solid #111827;
+  text-align: center;
+}
+
+.signature-grid span {
+  display: block;
+  margin-top: 4px;
+  text-align: center;
+  font-size: 0.8rem;
 }
 
 .lesson-meta {

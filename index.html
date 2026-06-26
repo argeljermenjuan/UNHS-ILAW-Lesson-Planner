@@ -15,12 +15,13 @@
         <div class="brand-icon">📘</div>
         <div>
           <h1>ILAW Teacher Studio</h1>
-          <p>UNHS Lesson Planner</p>
+          <p>Urbiztondo NHS Lesson Planner</p>
         </div>
       </div>
 
       <nav class="sidebar-nav">
         <button type="button" class="btn btn-primary btn-lg w-100 mb-2" id="newBtn">New Lesson</button>
+        <button type="button" class="btn btn-outline-primary w-100 mb-2" id="generatePlanBtn">Generate ILAW Plan</button>
         <button type="button" class="btn btn-outline-primary w-100 mb-2" id="saveBtn">Save Draft</button>
         <button type="button" class="btn btn-outline-secondary w-100 mb-2" id="printBtn">Print</button>
         <button type="button" class="btn btn-outline-success w-100 mb-2" id="wordBtn">Export Word</button>
@@ -38,7 +39,7 @@
     <main class="workspace">
       <header class="workspace-header">
         <div>
-          <p class="eyebrow">UNHS Instructional Planning</p>
+          <p class="eyebrow">Urbiztondo National High School Instructional Planning</p>
           <h2>Lesson Planner</h2>
         </div>
         <div id="statusMessage" class="status-message">Drafts are saved automatically.</div>
@@ -71,6 +72,10 @@
                 <div class="col-md-6">
                   <label class="form-label" for="learningArea">Learning Area</label>
                   <input id="learningArea" class="form-control js-field" type="text">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label" for="teacherName">Designed by Teacher/s</label>
+                  <input id="teacherName" class="form-control js-field" type="text">
                 </div>
                 <div class="col-md-3">
                   <label class="form-label" for="grade">Grade</label>
@@ -105,6 +110,16 @@
                   <label class="form-label" for="duration">Duration</label>
                   <input id="duration" class="form-control js-field" type="text">
                 </div>
+              </div>
+            </div>
+
+            <div class="panel-card">
+              <div class="panel-title">
+                <h3>ILAW Lesson Plan Generator</h3>
+                <p>Encode the lesson details and competency. The planner will generate a structured ILAW lesson plan from your input.</p>
+              </div>
+              <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-3">
+                <button type="button" class="btn btn-success" id="generatePlanBtnInline">Generate ILAW Lesson Plan</button>
               </div>
             </div>
 
@@ -164,12 +179,28 @@
                   <textarea id="resources" class="form-control js-field" rows="3"></textarea>
                 </div>
                 <div class="col-12">
+                  <label class="form-label" for="references">References</label>
+                  <textarea id="references" class="form-control js-field" rows="3"></textarea>
+                </div>
+                <div class="col-12">
+                  <label class="form-label" for="integration">Opportunities for Integration</label>
+                  <textarea id="integration" class="form-control js-field" rows="3"></textarea>
+                </div>
+                <div class="col-12">
                   <label class="form-label" for="assessment">Assessment</label>
                   <textarea id="assessment" class="form-control js-field" rows="3"></textarea>
                 </div>
                 <div class="col-12">
                   <label class="form-label" for="waysForward">Ways Forward</label>
                   <textarea id="waysForward" class="form-control js-field" rows="3"></textarea>
+                </div>
+                <div class="col-12">
+                  <label class="form-label" for="reflections">Reflections</label>
+                  <textarea id="reflections" class="form-control js-field" rows="3"></textarea>
+                </div>
+                <div class="col-12">
+                  <label class="form-label" for="aiUse">Declaration of AI Use</label>
+                  <textarea id="aiUse" class="form-control js-field" rows="3"></textarea>
                 </div>
               </div>
             </div>
