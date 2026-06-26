@@ -1,40 +1,197 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ILAW Teacher Studio - UNHS Edition</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css"></head>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ILAW Teacher Studio - UNHS Edition</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
 <body>
-<nav class="navbar navbar-dark bg-primary"><div class="container-fluid">
-<span class="navbar-brand">📘 ILAW Teacher Studio - UNHS Edition</span>
-<div><button class="btn btn-light btn-sm">New</button> <button class="btn btn-light btn-sm">Save</button> <button class="btn btn-light btn-sm">Print</button> <button class="btn btn-warning btn-sm">Export Word</button></div>
-</div></nav>
-<div class="container-fluid mt-3"><div class="row">
-<div class="col-lg-3"><div class="card"><div class="card-header">Lesson Information</div><div class="card-body">
-<label>Template</label>
-<div><input type="radio" name="template" checked> 5-Day <input type="radio" name="template"> 4-Day</div>
-<input id="learningArea" class="form-control mt-2" placeholder="Learning Area">
-<input id="grade" class="form-control mt-2" placeholder="Grade Level">
-<input class="form-control mt-2" placeholder="Section">
-<select id="term" class="form-select mt-2"><option>First Term</option><option>Second Term</option><option>Third Term</option></select>
-<input id="week" class="form-control mt-2" placeholder="Week">
-<input id="lessonTitle" class="form-control mt-2" placeholder="Lesson Title">
-<input id="topic" class="form-control mt-2" placeholder="Topic">
-<textarea id="competency" class="form-control mt-2" placeholder="Learning Competency"></textarea>
-<button id="generateBtn" class="btn btn-success w-100 mt-3">Generate Lesson</button>
-</div></div></div>
-<div class="col-lg-5"><div class="card"><div class="card-header">Lesson Editor</div><div class="card-body">
-<ul class="nav nav-tabs mb-3"><li class="nav-item"><span class="nav-link active">Intentions</span></li><li class="nav-item"><span class="nav-link">Learning Experience</span></li><li class="nav-item"><span class="nav-link">Assessment</span></li><li class="nav-item"><span class="nav-link">Ways Forward</span></li></ul>
-<textarea class="form-control mb-2" rows="3" placeholder="Learning Objectives"></textarea>
-<textarea class="form-control mb-2" rows="2" placeholder="Learner Context"></textarea>
-<textarea class="form-control mb-2" rows="2" placeholder="Pre-Lesson"></textarea>
-<textarea class="form-control mb-2" rows="2" placeholder="Day 1"></textarea>
-<textarea class="form-control mb-2" rows="2" placeholder="Day 2"></textarea>
-<textarea class="form-control mb-2" rows="2" placeholder="Day 3"></textarea>
-<textarea class="form-control mb-2" rows="2" placeholder="Day 4"></textarea>
-<div id="day5Container"><textarea class="form-control" rows="2" placeholder="Day 5"></textarea></div>
-</div></div></div>
-<div class="col-lg-4"><div class="card"><div class="card-header bg-success text-white">Live Preview</div><div class="card-body"><div id="preview"><h5>No lesson generated.</h5></div></div></div></div>
-</div></div>
-<script src="js/app.js"></script><script src="js/generator.js"></script><script src="js/preview.js"></script><script src="js/storage.js"></script>
-</body></html>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">📘</div>
+        <div>
+          <h1>ILAW Teacher Studio</h1>
+          <p>UNHS Lesson Planner</p>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button type="button" class="btn btn-primary btn-lg w-100 mb-2" id="newBtn">New Lesson</button>
+        <button type="button" class="btn btn-outline-primary w-100 mb-2" id="saveBtn">Save Draft</button>
+        <button type="button" class="btn btn-outline-secondary w-100 mb-2" id="printBtn">Print</button>
+        <button type="button" class="btn btn-outline-success w-100 mb-2" id="wordBtn">Export Word</button>
+      </nav>
+
+      <div class="sidebar-card">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="mb-0">Saved Lessons</h6>
+          <button type="button" class="btn btn-link btn-sm p-0" id="clearLibraryBtn">Clear</button>
+        </div>
+        <div id="lessonLibrary" class="lesson-library"></div>
+      </div>
+    </aside>
+
+    <main class="workspace">
+      <header class="workspace-header">
+        <div>
+          <p class="eyebrow">UNHS Instructional Planning</p>
+          <h2>Lesson Planner</h2>
+        </div>
+        <div id="statusMessage" class="status-message">Drafts are saved automatically.</div>
+      </header>
+
+      <div class="workspace-grid">
+        <section class="panel form-panel">
+          <form id="lessonForm">
+            <div class="panel-card">
+              <div class="panel-title">
+                <h3>Lesson Information</h3>
+                <p>Capture the core details for the teaching plan.</p>
+              </div>
+
+              <div class="row g-3">
+                <div class="col-12">
+                  <label class="form-label">Template</label>
+                  <div class="template-switch">
+                    <label class="template-option">
+                      <input type="radio" name="templateMode" value="5-day" class="js-field" checked>
+                      <span>5-Day</span>
+                    </label>
+                    <label class="template-option">
+                      <input type="radio" name="templateMode" value="4-day" class="js-field">
+                      <span>4-Day</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label" for="learningArea">Learning Area</label>
+                  <input id="learningArea" class="form-control js-field" type="text">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label" for="grade">Grade</label>
+                  <select id="grade" class="form-select js-field">
+                    <option value="">Select grade</option>
+                    <option value="Grade 7">Grade 7</option>
+                    <option value="Grade 8">Grade 8</option>
+                    <option value="Grade 9">Grade 9</option>
+                    <option value="Grade 10">Grade 10</option>
+                    <option value="Grade 11">Grade 11</option>
+                    <option value="Grade 12">Grade 12</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label" for="section">Section</label>
+                  <input id="section" class="form-control js-field" type="text">
+                </div>
+
+                <div class="col-md-4">
+                  <label class="form-label" for="term">Term</label>
+                  <select id="term" class="form-select js-field">
+                    <option value="First Term">First Term</option>
+                    <option value="Second Term">Second Term</option>
+                    <option value="Third Term">Third Term</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label" for="week">Week</label>
+                  <input id="week" class="form-control js-field" type="text">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label" for="duration">Duration</label>
+                  <input id="duration" class="form-control js-field" type="text">
+                </div>
+              </div>
+            </div>
+
+            <div class="panel-card">
+              <div class="panel-title">
+                <h3>Lesson Details</h3>
+                <p>Compose the teaching sequence and assessment plan.</p>
+              </div>
+
+              <div class="row g-3">
+                <div class="col-12">
+                  <label class="form-label" for="lessonTitle">Lesson Title</label>
+                  <input id="lessonTitle" class="form-control js-field" type="text">
+                </div>
+                <div class="col-12">
+                  <label class="form-label" for="topic">Topic</label>
+                  <input id="topic" class="form-control js-field" type="text">
+                </div>
+                <div class="col-12">
+                  <label class="form-label" for="competency">Learning Competency</label>
+                  <textarea id="competency" class="form-control js-field" rows="3"></textarea>
+                </div>
+                <div class="col-12">
+                  <label class="form-label" for="objectives">Learning Objectives</label>
+                  <textarea id="objectives" class="form-control js-field" rows="3"></textarea>
+                </div>
+                <div class="col-12">
+                  <label class="form-label" for="learnerContext">Learner Context</label>
+                  <textarea id="learnerContext" class="form-control js-field" rows="3"></textarea>
+                </div>
+                <div class="col-12">
+                  <label class="form-label" for="preLesson">Pre-Lesson</label>
+                  <textarea id="preLesson" class="form-control js-field" rows="3"></textarea>
+                </div>
+                <div class="col-12">
+                  <label class="form-label" for="day1">Day 1</label>
+                  <textarea id="day1" class="form-control js-field" rows="3"></textarea>
+                </div>
+                <div class="col-12">
+                  <label class="form-label" for="day2">Day 2</label>
+                  <textarea id="day2" class="form-control js-field" rows="3"></textarea>
+                </div>
+                <div class="col-12">
+                  <label class="form-label" for="day3">Day 3</label>
+                  <textarea id="day3" class="form-control js-field" rows="3"></textarea>
+                </div>
+                <div class="col-12">
+                  <label class="form-label" for="day4">Day 4</label>
+                  <textarea id="day4" class="form-control js-field" rows="3"></textarea>
+                </div>
+                <div class="col-12" id="day5Container">
+                  <label class="form-label" for="day5">Day 5</label>
+                  <textarea id="day5" class="form-control js-field" rows="3"></textarea>
+                </div>
+                <div class="col-12">
+                  <label class="form-label" for="resources">Resources</label>
+                  <textarea id="resources" class="form-control js-field" rows="3"></textarea>
+                </div>
+                <div class="col-12">
+                  <label class="form-label" for="assessment">Assessment</label>
+                  <textarea id="assessment" class="form-control js-field" rows="3"></textarea>
+                </div>
+                <div class="col-12">
+                  <label class="form-label" for="waysForward">Ways Forward</label>
+                  <textarea id="waysForward" class="form-control js-field" rows="3"></textarea>
+                </div>
+              </div>
+            </div>
+          </form>
+        </section>
+
+        <aside class="panel preview-panel">
+          <div class="panel-card preview-card">
+            <div class="panel-title">
+              <h3>Live Preview</h3>
+              <p>Updated automatically as you plan.</p>
+            </div>
+            <div id="preview" class="preview-shell"></div>
+          </div>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script src="js/generator.js"></script>
+  <script src="js/preview.js"></script>
+  <script src="js/storage.js"></script>
+</body>
+</html>
