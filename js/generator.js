@@ -35,6 +35,15 @@ const LessonGenerator = {
     return files.map((file) => `Uploaded material: ${file.name}`).join("\n");
   },
 
+  formatAssessmentText(value) {
+    if (!value || typeof value === "string") return value;
+    return [
+      value.knowledge ? `Knowledge: ${value.knowledge}` : "",
+      value.skills ? `Skills: ${value.skills}` : "",
+      value.attitude ? `Attitude/Values: ${value.attitude}` : ""
+    ].filter(Boolean).join("\n");
+  },
+
   buildLesson(data) {
     const topic = data.topic || "the lesson topic";
     const competency = data.competency || "the learning competency";
@@ -59,6 +68,10 @@ const LessonGenerator = {
     const manualReferences = data.references || data.resources || "Curriculum guide/MELCs, teacher references, learner materials, and locally available learning resources.";
     const references = [manualReferences, uploadedReferences].filter(Boolean).join("\n");
     const aiUse = data.aiUse || "AI assisted in organizing the lesson plan format and drafting editable learning activities; the teacher reviewed and contextualized all content.";
+    const smartDraft = data.smartDraft || null;
+    const reviewNotes = smartDraft?.teacherReviewItems?.length
+      ? smartDraft.teacherReviewItems.join("\n")
+      : "";
 
     return `
       <article class="lesson-preview annex-preview">
@@ -80,6 +93,8 @@ const LessonGenerator = {
             ${this.metadataRow("No. of Sessions", `${sessions} session${sessions > 1 ? "s" : ""}${data.week ? ` / ${data.week}` : ""}${data.duration ? ` / ${data.duration}` : ""}`)}
             ${this.metadataRow("References (books, websites, toolkits, etc.)", references)}
             ${this.metadataRow("Declaration of AI use (cite how AI was used in the formulation of the lesson plan DO 3 s. 2020 Annex A)", aiUse)}
+            ${smartDraft ? this.metadataRow("Smart Builder Confidence", smartDraft.confidence || "Needs Teacher Review") : ""}
+            ${reviewNotes ? this.metadataRow("Teacher Review Items", reviewNotes) : ""}
           </tbody>
         </table>
 
@@ -142,7 +157,7 @@ const LessonGenerator = {
             </tr>
             <tr>
               <th><span>Formative Assessment:</span> Create a task, activity, or questions to evaluate learning and provide feedback, with accommodations so all learners can demonstrate understanding.</th>
-              ${sessionFields.map(() => this.cell(assessment)).join("")}
+              ${sessionFields.map(() => this.cell(this.formatAssessmentText(assessment))).join("")}
             </tr>
             <tr class="annex-section-row">
               <th>Ways Forward</th>

@@ -5,6 +5,7 @@ const App = {
   draftKey: "ilaw-lesson-draft",
   lessonsKey: "ilaw-lesson-library",
   referenceFiles: [],
+  smartDraft: null,
 
   init() {
     this.cacheDOM();
@@ -93,29 +94,44 @@ const App = {
       waysForward: document.getElementById("waysForward")?.value || "",
       reflections: document.getElementById("reflections")?.value || "",
       aiUse: document.getElementById("aiUse")?.value || "",
-      referenceFiles: this.referenceFiles
+      referenceFiles: this.referenceFiles,
+      smartDraft: this.smartDraft
     };
   },
 
-  handleReferenceUpload() {
+  async handleReferenceUpload() {
     const files = Array.from(this.referenceUpload?.files || []);
     if (!files.length) return;
 
     const existingKeys = new Set(this.referenceFiles.map((file) => `${file.name}-${file.size}`));
-    const uploaded = files
-      .map((file) => ({
+    const uploaded = await Promise.all(files
+      .map(async (file) => ({
         name: file.name,
         type: file.type || "Unknown file type",
         size: file.size,
-        addedAt: new Date().toISOString()
-      }))
-      .filter((file) => !existingKeys.has(`${file.name}-${file.size}`));
+        addedAt: new Date().toISOString(),
+        extractedText: await this.extractReferenceText(file)
+      })));
 
-    this.referenceFiles = [...this.referenceFiles, ...uploaded];
+    const newUploads = uploaded.filter((file) => !existingKeys.has(`${file.name}-${file.size}`));
+
+    this.referenceFiles = [...this.referenceFiles, ...newUploads];
     this.referenceUpload.value = "";
     this.renderReferenceFiles();
     this.handleInput();
-    this.setStatus(`${uploaded.length || files.length} reference material${(uploaded.length || files.length) > 1 ? "s" : ""} added`);
+    this.setStatus(`${newUploads.length || files.length} reference material${(newUploads.length || files.length) > 1 ? "s" : ""} added`);
+  },
+
+  extractReferenceText(file) {
+    const canReadText = /text|plain|csv|markdown/i.test(file.type) || /\.(txt|md|csv)$/i.test(file.name);
+    if (!canReadText) return Promise.resolve("");
+
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result || "").slice(0, 50000));
+      reader.onerror = () => resolve("");
+      reader.readAsText(file);
+    });
   },
 
   clearReferenceFiles() {
@@ -195,17 +211,33 @@ const App = {
 
   generateILAWPlan() {
     const data = this.getFormData();
-    const hasCoreText = [data.lessonTitle, data.topic, data.competency].some((value) => value.trim().length > 0);
+    const hasCoreText = [data.lessonTitle, data.topic, data.competency, data.objectives, data.references]
+      .some((value) => value.trim().length > 0) || data.referenceFiles.length > 0;
 
     if (!hasCoreText) {
-      this.setStatus("Enter a lesson title, topic, or competency to generate the plan.");
+      this.setStatus("Enter lesson details or upload reference materials to generate the plan.");
       return;
     }
 
+    if (typeof LessonBuilder !== "undefined") {
+      const built = LessonBuilder.build(data);
+      this.smartDraft = built.analysis;
+      this.applyGeneratedFields(built.fields);
+    }
+
     this.saveDraft();
-    this.preview.innerHTML = LessonGenerator.buildLesson(data);
+    this.preview.innerHTML = LessonGenerator.buildLesson(this.getFormData());
     PreviewManager.initialize();
-    this.setStatus("ILAW lesson plan generated");
+    this.setStatus(`Smart ILAW lesson draft generated${this.smartDraft?.confidence ? ` (${this.smartDraft.confidence} confidence)` : ""}`);
+  },
+
+  applyGeneratedFields(fields = {}) {
+    Object.entries(fields).forEach(([key, value]) => {
+      const element = document.getElementById(key);
+      if (element && value) {
+        element.value = value;
+      }
+    });
   },
 
   saveDraft() {
@@ -222,6 +254,10 @@ const App = {
       Object.entries(draft).forEach(([key, value]) => {
         if (key === "referenceFiles") {
           this.referenceFiles = Array.isArray(value) ? value : [];
+          return;
+        }
+        if (key === "smartDraft") {
+          this.smartDraft = value || null;
           return;
         }
         const element = document.getElementById(key);
@@ -248,6 +284,7 @@ const App = {
     document.getElementById("grade").value = "";
     document.querySelector('input[name="templateMode"][value="5-day"]').checked = true;
     this.referenceFiles = [];
+    this.smartDraft = null;
     this.renderReferenceFiles();
     this.updateTemplateVisibility();
     this.saveDraft();
@@ -323,6 +360,10 @@ const App = {
       if (key === "id" || key === "title" || key === "createdAt") return;
       if (key === "referenceFiles") {
         this.referenceFiles = Array.isArray(value) ? value : [];
+        return;
+      }
+      if (key === "smartDraft") {
+        this.smartDraft = value || null;
         return;
       }
       const element = document.getElementById(key);
