@@ -2,14 +2,17 @@ const PreviewManager = {
   previewContainer: null,
   documentStyles: `
     :root{--primary:#0d6efd;--primary-dark:#0b5ed7;--secondary:#198754;--surface:#ffffff;--surface-soft:#f6f8fc;--border:#dfe7f1;--text:#15304a;--muted:#6c8194;}
+    @page{size:A4 landscape; margin:10mm;}
+    @page WordSection1{size:841.95pt 595.35pt; mso-page-orientation:landscape; margin:28.35pt 28.35pt 28.35pt 28.35pt;}
     *{box-sizing:border-box;}
     body{margin:0; font-family:"Poppins","Segoe UI",sans-serif; background:#f6f8fc; color:var(--text);}
-    .export-preview-shell{background:var(--surface-soft); border:1px dashed var(--border); border-radius:16px; min-height:540px; padding:20px; overflow:auto;}
+    .WordSection1{page:WordSection1;}
+    .export-preview-shell{background:var(--surface-soft); border:1px dashed var(--border); border-radius:16px; min-height:540px; padding:20px; overflow:auto; width:100%;}
     .lesson-preview{color:var(--text);}
-    .annex-preview{font-family:"Times New Roman", Times, serif; color:#111827; min-width:920px;}
+    .annex-preview{font-family:"Times New Roman", Times, serif; color:#111827; min-width:0; width:100%;}
     .annex-preview h3{color:#111827; font-size:1.2rem; margin:0; text-align:center;}
     .annex-heading{display:flex; align-items:center; justify-content:center; gap:14px; margin-bottom:14px; text-align:center;}
-    .annex-heading img{width:68px; height:68px; object-fit:contain;}
+    .annex-heading img{width:68px; height:68px; max-width:68px; max-height:68px; object-fit:contain;}
     .annex-label{margin:0; font-weight:700;}
     .annex-school-name{margin:2px 0 0; font-size:0.95rem; font-weight:700;}
     .annex-meta-table,.annex-session-table{width:100%; border-collapse:collapse; table-layout:fixed; background:#fff; margin-bottom:16px;}
@@ -84,14 +87,23 @@ const PreviewManager = {
     const namespaces = isWord
       ? ' xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"'
       : "";
-    return `<!DOCTYPE html><html${namespaces}><head><meta charset="utf-8"><title>ILAW Lesson Plan</title><style>${this.documentStyles}</style></head><body><div class="export-preview-shell">${content}</div></body></html>`;
+    return `<!DOCTYPE html><html${namespaces}><head><meta charset="utf-8"><title>ILAW Lesson Plan</title><style>${this.documentStyles}</style></head><body><div class="WordSection1"><div class="export-preview-shell">${content}</div></div></body></html>`;
   },
 
   async getExportContent() {
     const clone = this.previewContainer.cloneNode(true);
     const images = Array.from(clone.querySelectorAll("img"));
+    images.forEach((image) => this.prepareImageForWord(image));
     await Promise.all(images.map((image) => this.inlineImage(image)));
     return clone.innerHTML;
+  },
+
+  prepareImageForWord(image) {
+    if (image.closest(".annex-heading")) {
+      image.setAttribute("width", "68");
+      image.setAttribute("height", "68");
+      image.setAttribute("style", "width:68px;height:68px;max-width:68px;max-height:68px;object-fit:contain;");
+    }
   },
 
   async inlineImage(image) {
