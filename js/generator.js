@@ -62,8 +62,14 @@ const LessonGenerator = {
 
     return `
       <article class="lesson-preview annex-preview">
-        <p class="annex-label">Annex A</p>
-        <h3>Lesson Plan Template</h3>
+        <div class="annex-heading">
+          <img src="assets/logo.png" alt="Urbiztondo National High School logo">
+          <div>
+            <p class="annex-label">Annex A</p>
+            <h3>Lesson Plan Template</h3>
+            <p class="annex-school-name">Urbiztondo National High School</p>
+          </div>
+        </div>
 
         <table class="annex-meta-table">
           <tbody>

@@ -49,15 +49,11 @@ textarea {
   padding: 8px 6px 12px;
 }
 
-.brand-icon {
+.brand-logo {
   width: 48px;
   height: 48px;
-  display: grid;
-  place-items: center;
-  border-radius: 14px;
-  background: linear-gradient(135deg, var(--primary), #66a8ff);
-  color: white;
-  font-size: 22px;
+  flex: 0 0 auto;
+  object-fit: contain;
 }
 
 .sidebar-brand h1 {
@@ -301,12 +297,33 @@ textarea.form-control {
 .annex-preview h3 {
   color: #111827;
   font-size: 1.2rem;
-  margin: 0 0 14px;
+  margin: 0;
   text-align: center;
+}
+
+.annex-heading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 14px;
+  text-align: center;
+}
+
+.annex-heading img {
+  width: 68px;
+  height: 68px;
+  object-fit: contain;
 }
 
 .annex-label {
   margin: 0;
+  font-weight: 700;
+}
+
+.annex-school-name {
+  margin: 2px 0 0;
+  font-size: 0.95rem;
   font-weight: 700;
 }
 
