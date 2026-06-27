@@ -11,6 +11,7 @@ const LessonAnalyzer = {
       input.term,
       input.duration,
       input.references,
+      input.onlineReferences,
       input.resources,
       input.competency,
       input.objectives,
@@ -216,7 +217,7 @@ const LessonAnalyzer = {
 
   buildSessionPlan(keyConcepts = [], competencies = [], objectives) {
     const concepts = keyConcepts.length ? keyConcepts : ["lesson concept"];
-    const competency = competencies[0] || this.reviewLabel;
+    const competencyPool = competencies.length ? competencies : [this.reviewLabel];
     const progression = [
       {
         focus: ["Introduction", "Prerequisite Knowledge", "Motivation"],
@@ -263,9 +264,11 @@ const LessonAnalyzer = {
     return progression.map((stage, index) => {
       const session = index + 1;
       const concept = concepts[index % concepts.length];
-      const knowledgeObjective = this.buildKnowledgeObjective(session, stage.knowledgeVerb, concept, competency);
-      const skillsObjective = this.buildSkillsObjective(session, stage.skillsVerb, concept);
-      const attitudeObjective = this.buildAttitudeObjective(session, stage.attitudeVerb);
+      const competency = competencyPool[index % competencyPool.length];
+      const competencyTarget = this.summarizeCompetencyTarget(competency, concept);
+      const knowledgeObjective = this.buildKnowledgeObjective(session, stage.knowledgeVerb, concept, competencyTarget);
+      const skillsObjective = this.buildSkillsObjective(session, stage.skillsVerb, concept, competencyTarget);
+      const attitudeObjective = this.buildAttitudeObjective(session, stage.attitudeVerb, stage.mastery);
 
       return {
         session,
@@ -297,34 +300,44 @@ const LessonAnalyzer = {
   buildKnowledgeObjective(session, verb, concept, competency) {
     const templates = {
       1: `${verb} prior knowledge, key terms, and initial ideas about ${concept}.`,
-      2: `${verb} the important concepts, examples, and relationships involved in ${concept}.`,
-      3: `${verb} how ${concept} is used in guided practice aligned with the competency.`,
-      4: `${verb} situations involving ${concept} and justify conclusions using evidence.`,
-      5: `${verb} and connect the major learnings about ${concept} to complete the performance task.`
+      2: `${verb} the important concepts, examples, and relationships involved in ${concept} and ${competency}.`,
+      3: `${verb} how ${concept} is used in guided practice aligned with ${competency}.`,
+      4: `${verb} situations involving ${concept} and justify conclusions using evidence from ${competency}.`,
+      5: `${verb} and connect the major learnings about ${concept} to complete a performance task for ${competency}.`
     };
     return templates[session] || `${verb} ideas related to ${competency}.`;
   },
 
-  buildSkillsObjective(session, verb, concept) {
+  buildSkillsObjective(session, verb, concept, competency) {
     const templates = {
       1: `${verb} personal ideas and questions about ${concept} through a short collaborative activity.`,
       2: `${verb} examples, non-examples, and details about ${concept} using a graphic organizer or class output.`,
-      3: `${verb} the learned process in a guided task with teacher or peer feedback.`,
+      3: `${verb} the learned process in a guided task that demonstrates ${competency}.`,
       4: `${verb} real-life examples or problems involving ${concept} and explain the basis of the decision.`,
       5: `${verb} an output or performance that demonstrates transfer of learning.`
     };
     return templates[session];
   },
 
-  buildAttitudeObjective(session, verb) {
+  buildAttitudeObjective(session, verb, mastery) {
     const templates = {
       1: `${verb} actively by listening, asking questions, and respecting classmates' prior ideas.`,
       2: `${verb} with peers by contributing ideas and accepting feedback during concept development.`,
       3: `${verb} by completing assigned tasks carefully and helping groupmates during practice.`,
       4: `${verb} for others' viewpoints while evaluating ideas and real-life applications.`,
-      5: `${verb} the importance of learning by reflecting honestly and taking responsibility for improvement.`
+      5: `${verb} the importance of learning by reflecting honestly and taking responsibility for ${mastery}.`
     };
     return templates[session];
+  },
+
+  summarizeCompetencyTarget(competency = "", concept = "") {
+    const cleaned = String(competency || "")
+      .replace(/\s+/g, " ")
+      .replace(/^(the\s+)?learners?\s+(can|will|should|are able to)\s+/i, "")
+      .trim();
+
+    if (!cleaned || cleaned === this.reviewLabel) return concept;
+    return cleaned.length > 110 ? `${cleaned.slice(0, 107).trim()}...` : cleaned;
   },
 
   buildSuccessCriteria(session, concept) {
@@ -438,9 +451,9 @@ const LessonAnalyzer = {
 
   extractReferences(input, sourceText) {
     const uploaded = Array.isArray(input.referenceFiles)
-      ? input.referenceFiles.map((file) => file.name)
+      ? input.referenceFiles.map((file) => file.sourceUrl || file.name)
       : [];
-    return this.unique([...this.normalizeLines(input.references), ...uploaded]);
+    return this.unique([...this.normalizeLines(input.references), ...this.normalizeLines(input.onlineReferences), ...uploaded]);
   },
 
   extractResources(input) {
@@ -455,9 +468,12 @@ const LessonAnalyzer = {
     if (!input.learningArea && !/learning area|subject/i.test(sourceText)) items.push("Confirm learning area.");
     if (!input.grade && !/grade\s*(7|8|9|10|11|12)/i.test(sourceText)) items.push("Confirm grade level.");
     if (!input.competency && !/competency|melc/i.test(sourceText)) items.push("Add or verify official learning competency/MELC.");
-    if (!input.references && !input.referenceFiles?.length) items.push("Add references or uploaded learning materials.");
+    if (!input.references && !input.onlineReferences && !input.referenceFiles?.length) items.push("Add references or uploaded learning materials.");
     if (input.referenceFiles?.some((file) => !file.extractedText && !/text|plain/i.test(file.type || ""))) {
       items.push("Uploaded PDF/DOCX/PPTX files need full text parsing in a future parser/backend sprint.");
+    }
+    if (input.referenceFiles?.some((file) => file.sourceUrl && !file.extractedText)) {
+      items.push("Some online references could not be read automatically; verify or paste important content manually.");
     }
     return items.length ? items : ["Review generated content for class context and learner needs."];
   },
@@ -468,6 +484,7 @@ const LessonAnalyzer = {
     if (input.objectives) score += 1;
     if (input.topic || sourceText.length > 200) score += 1;
     if (input.referenceFiles?.some((file) => file.extractedText)) score += 1;
+    if (input.onlineReferences) score += 1;
     if (score >= 4) return "High";
     if (score >= 2) return "Medium";
     return "Low";

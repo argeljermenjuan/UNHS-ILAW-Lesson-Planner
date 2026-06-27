@@ -3,7 +3,7 @@ const PreviewManager = {
   documentStyles: `
     :root{--primary:#0d6efd;--primary-dark:#0b5ed7;--secondary:#198754;--surface:#ffffff;--surface-soft:#f6f8fc;--border:#dfe7f1;--text:#15304a;--muted:#6c8194;}
     @page{size:A4 landscape; margin:10mm;}
-    @page WordSection1{size:841.95pt 595.35pt; mso-page-orientation:landscape; margin:28.35pt 28.35pt 28.35pt 28.35pt;}
+    @page WordSection1{size:841.95pt 595.35pt; mso-page-orientation:landscape; margin:18pt 18pt 18pt 18pt;}
     *{box-sizing:border-box;}
     body{margin:0; font-family:"Poppins","Segoe UI",sans-serif; background:#f6f8fc; color:var(--text);}
     .WordSection1{page:WordSection1;}
@@ -31,6 +31,22 @@ const PreviewManager = {
     .signature-grid p{margin:0 0 28px; font-size:0.85rem;}
     .signature-grid strong{display:block; min-height:24px; border-bottom:1px solid #111827; text-align:center;}
     .signature-grid span{display:block; margin-top:4px; text-align:center; font-size:0.8rem;}
+    .word-export{background:#fff;}
+    .word-export .export-preview-shell{background:#fff; border:0; border-radius:0; min-height:0; padding:0; overflow:visible;}
+    .word-export .annex-preview{font-family:Arial, Helvetica, sans-serif;}
+    .word-export .annex-heading{display:block; margin:0 0 4px;}
+    .word-export .annex-heading img,.word-export .annex-label{display:none;}
+    .word-export .annex-preview h3{font-size:9pt; line-height:1.1; text-transform:uppercase;}
+    .word-export .annex-school-name{font-size:8pt; line-height:1.1;}
+    .word-export .annex-meta-table,.word-export .annex-session-table{margin-bottom:4px; page-break-inside:auto;}
+    .word-export .annex-meta-table th,.word-export .annex-meta-table td,.word-export .annex-session-table th,.word-export .annex-session-table td{padding:2.5pt 3pt; font-size:7.6pt; line-height:1.12; mso-line-height-rule:exactly;}
+    .word-export .annex-meta-table th{width:20%;}
+    .word-export .annex-session-table .annex-row-label,.word-export .annex-session-table tbody th{width:19%;}
+    .word-export .annex-section-row td{font-size:7.2pt;}
+    .word-export .signature-grid{font-family:Arial, Helvetica, sans-serif; margin-top:8pt; gap:12pt;}
+    .word-export .signature-grid p{font-size:7.5pt; margin-bottom:12pt;}
+    .word-export .signature-grid strong{min-height:14pt;}
+    .word-export .signature-grid span{font-size:7pt;}
     @media print{body{background:#fff;} .export-preview-shell{border:0; padding:0; background:#fff;}}
   `,
 
@@ -87,7 +103,8 @@ const PreviewManager = {
     const namespaces = isWord
       ? ' xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"'
       : "";
-    return `<!DOCTYPE html><html${namespaces}><head><meta charset="utf-8"><title>ILAW Lesson Plan</title><style>${this.documentStyles}</style></head><body><div class="WordSection1"><div class="export-preview-shell">${content}</div></div></body></html>`;
+    const bodyClass = isWord ? ' class="word-export"' : "";
+    return `<!DOCTYPE html><html${namespaces}><head><meta charset="utf-8"><title>ILAW Lesson Plan</title><style>${this.documentStyles}</style></head><body${bodyClass}><div class="WordSection1"><div class="export-preview-shell">${content}</div></div></body></html>`;
   },
 
   async getExportContent() {

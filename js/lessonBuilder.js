@@ -24,6 +24,26 @@ const LessonBuilder = {
       session.skillsObjective,
       session.attitudeObjective
     ]);
+    const sessionObjectiveFields = this.buildSessionFields(
+      analysis.sessionPlan,
+      "objectiveSession",
+      (session) => this.formatSessionObjectives(session)
+    );
+    const sessionAssessmentFields = this.buildSessionFields(
+      analysis.sessionPlan,
+      "assessmentSession",
+      (session) => this.formatSessionAssessment(session.assessment)
+    );
+    const sessionWaysForwardFields = this.buildSessionFields(
+      analysis.sessionPlan,
+      "waysForwardSession",
+      (session) => session.waysForward
+    );
+    const sessionReflectionFields = this.buildSessionFields(
+      analysis.sessionPlan,
+      "reflectionSession",
+      (session) => session.reflection
+    );
 
     return {
       analysis,
@@ -36,6 +56,7 @@ const LessonBuilder = {
         duration: this.useExisting(input.duration, analysis.duration),
         competency: this.useExisting(input.competency, analysis.learningCompetencies.join("\n")),
         objectives: this.unique(sessionObjectives).join("\n"),
+        ...sessionObjectiveFields,
         learnerContext: this.useExisting(input.learnerContext, "Needs Teacher Review: Add current learner strengths, needs, interests, and possible barriers."),
         preLesson: [
           "Activate prerequisite knowledge through diagnostic questions.",
@@ -50,8 +71,11 @@ const LessonBuilder = {
         resources: analysis.resources.join("\n"),
         references: analysis.references.join("\n"),
         assessment: this.formatAssessment(analysis.assessment),
+        ...sessionAssessmentFields,
         waysForward: this.formatWaysForward(analysis.waysForward),
+        ...sessionWaysForwardFields,
         reflections: analysis.waysForward.reflectionQuestions.join("\n"),
+        ...sessionReflectionFields,
         aiUse: "Rule-based Smart Lesson Builder analyzed teacher inputs and uploaded material metadata/text to draft editable ILAW lesson planning content. Teacher reviewed and contextualized the final plan."
       }
     };
@@ -69,6 +93,29 @@ const LessonBuilder = {
       `Summative: ${assessment.summative}`,
       `Rubric Criteria: ${assessment.rubric.join(", ")}`
     ].join("\n");
+  },
+
+  formatSessionObjectives(session) {
+    return [
+      `Knowledge: ${session.knowledgeObjective}`,
+      `Skills: ${session.skillsObjective}`,
+      `Attitude/Values: ${session.attitudeObjective}`
+    ].join("\n");
+  },
+
+  formatSessionAssessment(assessment) {
+    return [
+      `Knowledge: ${assessment.knowledge}`,
+      `Skills: ${assessment.skills}`,
+      `Attitude/Values: ${assessment.attitude}`
+    ].join("\n");
+  },
+
+  buildSessionFields(sessionPlan = [], prefix, formatter) {
+    return sessionPlan.reduce((fields, session, index) => {
+      fields[`${prefix}${index + 1}`] = formatter(session);
+      return fields;
+    }, {});
   },
 
   unique(items = []) {

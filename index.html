@@ -136,6 +136,15 @@
                 </button>
                 <button type="button" class="btn btn-outline-secondary" id="clearReferencesBtn">Clear Files</button>
               </div>
+              <div class="online-reference-tools mt-3">
+                <label class="form-label" for="onlineReferences">Online Reference Links</label>
+                <textarea id="onlineReferences" class="form-control js-field" rows="3" placeholder="Paste public GitHub, DepEd, article, or raw text links. Put one URL per line."></textarea>
+                <button type="button" class="btn btn-outline-success mt-2" id="fetchOnlineReferencesBtn">
+                  <i class="bi bi-globe2"></i>
+                  Fetch Online References
+                </button>
+                <div class="form-text">Public links are read in the browser. GitHub raw/text pages work best; some sites may block access.</div>
+              </div>
               <div id="referenceFileList" class="reference-file-list">
                 <div class="text-muted">No reference materials uploaded yet.</div>
               </div>
@@ -163,6 +172,26 @@
                 <div class="col-12">
                   <label class="form-label" for="objectives">Learning Objectives</label>
                   <textarea id="objectives" class="form-control js-field" rows="3"></textarea>
+                  <input id="objectiveSession1" class="js-field" type="hidden">
+                  <input id="objectiveSession2" class="js-field" type="hidden">
+                  <input id="objectiveSession3" class="js-field" type="hidden">
+                  <input id="objectiveSession4" class="js-field" type="hidden">
+                  <input id="objectiveSession5" class="js-field" type="hidden">
+                  <input id="assessmentSession1" class="js-field" type="hidden">
+                  <input id="assessmentSession2" class="js-field" type="hidden">
+                  <input id="assessmentSession3" class="js-field" type="hidden">
+                  <input id="assessmentSession4" class="js-field" type="hidden">
+                  <input id="assessmentSession5" class="js-field" type="hidden">
+                  <input id="waysForwardSession1" class="js-field" type="hidden">
+                  <input id="waysForwardSession2" class="js-field" type="hidden">
+                  <input id="waysForwardSession3" class="js-field" type="hidden">
+                  <input id="waysForwardSession4" class="js-field" type="hidden">
+                  <input id="waysForwardSession5" class="js-field" type="hidden">
+                  <input id="reflectionSession1" class="js-field" type="hidden">
+                  <input id="reflectionSession2" class="js-field" type="hidden">
+                  <input id="reflectionSession3" class="js-field" type="hidden">
+                  <input id="reflectionSession4" class="js-field" type="hidden">
+                  <input id="reflectionSession5" class="js-field" type="hidden">
                 </div>
                 <div class="col-12">
                   <label class="form-label" for="learnerContext">Learner Context</label>

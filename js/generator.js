@@ -44,6 +44,27 @@ const LessonGenerator = {
     ].filter(Boolean).join("\n");
   },
 
+  sessionObjectiveFallback(session, data) {
+    const topic = data.topic || "the lesson topic";
+    const competency = data.competency || "the learning competency";
+    const lines = String(data.objectives || "")
+      .split(/\n|;/)
+      .map((line) => line.trim())
+      .filter(Boolean);
+
+    if (lines.length >= 5) return lines[session - 1];
+
+    const defaults = {
+      1: `Identify prior knowledge, key terms, and initial ideas about ${topic}.`,
+      2: `Describe important concepts, examples, and relationships involved in ${topic}.`,
+      3: `Apply learned concepts in a guided task aligned with ${competency}.`,
+      4: `Analyze real-life situations involving ${topic} and justify conclusions using evidence.`,
+      5: `Create an output or reflection that demonstrates transfer of learning about ${topic}.`
+    };
+
+    return defaults[session];
+  },
+
   buildLesson(data) {
     const topic = data.topic || "the lesson topic";
     const competency = data.competency || "the learning competency";
@@ -116,7 +137,7 @@ const LessonGenerator = {
             </tr>
             <tr>
               <th><span>Learning Objectives:</span> Write the smaller knowledge, skills, or tasks learners will work on and show by the end of the sessions.</th>
-              ${sessionCells("objectiveSession", objectives)}
+              ${sessionCells("objectiveSession", (session) => this.sessionObjectiveFallback(session, data) || objectives)}
             </tr>
             <tr>
               <th><span>Learner Context:</span> Write observations of learners, including strengths, interests, and possible barriers to learning.</th>
@@ -157,7 +178,7 @@ const LessonGenerator = {
             </tr>
             <tr>
               <th><span>Formative Assessment:</span> Create a task, activity, or questions to evaluate learning and provide feedback, with accommodations so all learners can demonstrate understanding.</th>
-              ${sessionFields.map(() => this.cell(this.formatAssessmentText(assessment))).join("")}
+              ${sessionCells("assessmentSession", this.formatAssessmentText(assessment))}
             </tr>
             <tr class="annex-section-row">
               <th>Ways Forward</th>
@@ -165,11 +186,11 @@ const LessonGenerator = {
             </tr>
             <tr>
               <th><span>Extended Learning Opportunities:</span> Suggest learning experiences outside class hours to reinforce learning, spark curiosity, or provide support.</th>
-              ${sessionFields.map(() => this.cell(waysForward)).join("")}
+              ${sessionCells("waysForwardSession", waysForward)}
             </tr>
             <tr>
               <th><span>Reflections:</span> Think about what to change for the next session, what learners are interested in exploring, and what to share with co-teachers, parents, school leaders, or an instructional coach.</th>
-              ${sessionFields.map(() => this.cell(reflections)).join("")}
+              ${sessionCells("reflectionSession", reflections)}
             </tr>
           </tbody>
         </table>
