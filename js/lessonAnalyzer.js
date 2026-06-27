@@ -223,49 +223,54 @@ const LessonAnalyzer = {
         knowledgeVerb: "Identify",
         skillsVerb: "Share",
         attitudeVerb: "Participate",
-        complexity: "foundational"
+        complexity: "foundational",
+        mastery: "remembering and readiness"
       },
       {
         focus: ["Concept Development"],
         knowledgeVerb: "Describe",
         skillsVerb: "Organize",
         attitudeVerb: "Cooperate",
-        complexity: "conceptual"
+        complexity: "conceptual",
+        mastery: "understanding"
       },
       {
         focus: ["Guided Practice", "Application"],
         knowledgeVerb: "Explain",
         skillsVerb: "Apply",
         attitudeVerb: "Practice responsibility",
-        complexity: "procedural"
+        complexity: "procedural",
+        mastery: "guided application"
       },
       {
         focus: ["Analysis", "Evaluation", "Real-life Application"],
         knowledgeVerb: "Analyze",
         skillsVerb: "Evaluate",
         attitudeVerb: "Show respect",
-        complexity: "analytical"
+        complexity: "analytical",
+        mastery: "analysis and evaluation"
       },
       {
         focus: ["Performance Task", "Reflection", "Assessment", "Transfer of Learning"],
         knowledgeVerb: "Synthesize",
         skillsVerb: "Create",
         attitudeVerb: "Value",
-        complexity: "transfer"
+        complexity: "transfer",
+        mastery: "creation and transfer"
       }
     ];
 
     return progression.map((stage, index) => {
       const session = index + 1;
       const concept = concepts[index % concepts.length];
-      const knowledgeObjective = `${stage.knowledgeVerb} ${session === 5 ? "and connect" : "the"} key ideas about ${concept} in relation to the learning competency.`;
-      const skillsObjective = `${stage.skillsVerb} learning evidence that demonstrates ${stage.complexity} understanding of ${concept}.`;
-      const attitudeObjective = `${stage.attitudeVerb} during learning tasks by showing accountability, collaboration, and reflection.`;
+      const knowledgeObjective = this.buildKnowledgeObjective(session, stage.knowledgeVerb, concept, competency);
+      const skillsObjective = this.buildSkillsObjective(session, stage.skillsVerb, concept);
+      const attitudeObjective = this.buildAttitudeObjective(session, stage.attitudeVerb);
 
       return {
         session,
         focus: stage.focus,
-        intentions: `Learners build ${stage.complexity} understanding of ${concept} toward mastery of: ${competency}`,
+        intentions: `In this session, learners move toward ${stage.mastery} by connecting ${concept} with the target competency: ${competency}`,
         knowledgeObjective,
         skillsObjective,
         attitudeObjective,
@@ -287,6 +292,39 @@ const LessonAnalyzer = {
         valuesIntegration: this.buildValuesIntegration(session)
       };
     });
+  },
+
+  buildKnowledgeObjective(session, verb, concept, competency) {
+    const templates = {
+      1: `${verb} prior knowledge, key terms, and initial ideas about ${concept}.`,
+      2: `${verb} the important concepts, examples, and relationships involved in ${concept}.`,
+      3: `${verb} how ${concept} is used in guided practice aligned with the competency.`,
+      4: `${verb} situations involving ${concept} and justify conclusions using evidence.`,
+      5: `${verb} and connect the major learnings about ${concept} to complete the performance task.`
+    };
+    return templates[session] || `${verb} ideas related to ${competency}.`;
+  },
+
+  buildSkillsObjective(session, verb, concept) {
+    const templates = {
+      1: `${verb} personal ideas and questions about ${concept} through a short collaborative activity.`,
+      2: `${verb} examples, non-examples, and details about ${concept} using a graphic organizer or class output.`,
+      3: `${verb} the learned process in a guided task with teacher or peer feedback.`,
+      4: `${verb} real-life examples or problems involving ${concept} and explain the basis of the decision.`,
+      5: `${verb} an output or performance that demonstrates transfer of learning.`
+    };
+    return templates[session];
+  },
+
+  buildAttitudeObjective(session, verb) {
+    const templates = {
+      1: `${verb} actively by listening, asking questions, and respecting classmates' prior ideas.`,
+      2: `${verb} with peers by contributing ideas and accepting feedback during concept development.`,
+      3: `${verb} by completing assigned tasks carefully and helping groupmates during practice.`,
+      4: `${verb} for others' viewpoints while evaluating ideas and real-life applications.`,
+      5: `${verb} the importance of learning by reflecting honestly and taking responsibility for improvement.`
+    };
+    return templates[session];
   },
 
   buildSuccessCriteria(session, concept) {
@@ -314,11 +352,11 @@ const LessonAnalyzer = {
   suggestActivities(session, concepts, competency) {
     const primary = concepts[(session - 1) % concepts.length];
     const map = {
-      1: [`Motivation activity connected to ${primary}`, "Think-Pair-Share on prior knowledge", "Teacher-led introduction of key terms"],
-      2: [`Concept development discussion on ${primary}`, "Guided examples", "Collaborative note-making"],
-      3: ["Guided practice", "Small-group task", `Hands-on or problem-solving activity using ${primary}`],
-      4: ["Real-life application task", "Analysis and evaluation questions", "Group presentation or simulation"],
-      5: ["Performance task", "Short summative check", "Reflection and enrichment activity"]
+      1: [`Begin with a familiar situation or question connected to ${primary}.`, "Use Think-Pair-Share so learners can surface prior knowledge.", "Clarify key terms through short teacher-guided discussion."],
+      2: [`Develop the concept of ${primary} through examples, non-examples, and guided questioning.`, "Let learners complete a concept map or organizer in pairs.", "Process answers as a class and correct misconceptions immediately."],
+      3: [`Guide learners through a sample task involving ${primary}.`, "Let small groups complete a practice activity with feedback checkpoints.", "Ask learners to explain the steps or reasoning they used."],
+      4: [`Present a real-life case or problem involving ${primary}.`, "Let groups analyze options, evaluate evidence, and justify their answer.", "Facilitate sharing and comparison of group reasoning."],
+      5: ["Let learners complete a performance task or final output.", "Use a rubric or checklist for self, peer, and teacher assessment.", "End with reflection and an enrichment or remediation direction."]
     };
     return map[session] || [`Learning activity aligned with ${competency}`];
   },
@@ -326,11 +364,11 @@ const LessonAnalyzer = {
   suggestAssessment(session, concepts) {
     const primary = concepts[(session - 1) % concepts.length];
     const map = {
-      1: `Diagnostic questions on prior knowledge about ${primary}.`,
-      2: `Formative check through oral questioning and guided examples about ${primary}.`,
-      3: "Observation checklist and learner output from guided practice.",
-      4: "Application task with analysis questions and peer feedback.",
-      5: "Performance task, rubric-based scoring, and reflection."
+      1: `Use diagnostic questions and a quick prior-knowledge organizer about ${primary}.`,
+      2: `Check learner responses through concept map review, oral questioning, and corrected examples about ${primary}.`,
+      3: "Assess guided practice outputs using a short checklist and feedback notes.",
+      4: "Assess analysis through a real-life application task, evidence-based explanation, and peer feedback.",
+      5: "Assess the performance task using a rubric, learner reflection, and teacher feedback."
     };
     return {
       knowledge: session === 1 ? `Diagnostic questions about ${primary}.` : `Written or oral check on key ideas about ${primary}.`,
