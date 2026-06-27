@@ -23,8 +23,10 @@ const LessonAnalyzer = {
     const standards = this.extractStandards(sourceText);
     const metadata = this.extractGeneralInformation(input, sourceText);
     const unpacked = this.unpackCompetencies(learningCompetencies, keyConcepts);
-    const objectives = this.generateObjectives(input.objectives, unpacked, keyConcepts);
-    const sessionPlan = this.buildSessionPlan(keyConcepts, learningCompetencies, objectives);
+    const materialObjectives = this.extractMaterialObjectives(sourceText);
+    const materialActivities = this.extractMaterialActivities(sourceText);
+    const objectives = this.generateObjectives(input.objectives, unpacked, keyConcepts, materialObjectives);
+    const sessionPlan = this.buildSessionPlan(keyConcepts, learningCompetencies, objectives, materialActivities);
     const teacherReviewItems = this.buildTeacherReviewItems(input, sourceText);
 
     return {
@@ -74,6 +76,16 @@ const LessonAnalyzer = {
       .split(/\n|;/)
       .map((item) => item.trim())
       .filter(Boolean);
+  },
+
+  normalizeMaterialLines(value = "") {
+    return String(value)
+      .replace(/\r/g, "\n")
+      .replace(/([.!?])\s+(?=[A-Z])/g, "$1\n")
+      .replace(/\s+(Learning Competenc(?:y|ies)|Learning Objectives?|Objectives?|Activities?|Procedure|Lesson Proper|Assessment|Reflection)\s*:?\s*/gi, "\n$1: ")
+      .split(/\n|•|●|▪|–|—/)
+      .map((item) => item.replace(/^\s*(?:\d+[\.)]|[a-z][\.)]|[-*])\s*/i, "").trim())
+      .filter((item) => item.length > 8);
   },
 
   extractGeneralInformation(input, sourceText) {
@@ -191,9 +203,34 @@ const LessonAnalyzer = {
     });
   },
 
-  generateObjectives(existingObjectives = "", unpacked, keyConcepts = []) {
+  extractMaterialObjectives(sourceText = "") {
+    const lines = this.normalizeMaterialLines(sourceText);
+    return lines.filter((line) => (
+      /objective|layunin|target|learners?\s+(?:will|can|should|are able to)|students?\s+(?:will|can|should|are able to)/i.test(line)
+      || /^(identify|describe|explain|define|recognize|apply|demonstrate|analyze|create|construct|solve|value|appreciate|participate|cooperate|respect)/i.test(line)
+    ))
+      .map((line) => line.replace(/^(learning\s+objectives?|objectives?|layunin)\s*:?\s*/i, "").trim())
+      .filter((line) => line.length > 12 && line.length < 220)
+      .slice(0, 15);
+  },
+
+  extractMaterialActivities(sourceText = "") {
+    const lines = this.normalizeMaterialLines(sourceText);
+    const activitySignals = /activity|gawain|task|procedure|lesson proper|learning experience|flow|practice|discussion|group|pair|quiz|worksheet|performance|output|reflection|assessment|analyze|create|present|demonstrate|observe|read|answer|complete|write|draw|compare|classify/i;
+    const labelOnly = /^(learning\s+)?(activity|activities|procedure|lesson proper|flow|assessment|reflection|gawain)\s*:?\s*$/i;
+
+    return this.unique(lines
+      .filter((line) => activitySignals.test(line) && !labelOnly.test(line))
+      .map((line) => line.replace(/^(activity|gawain|task|procedure|flow)\s*\d*[:.-]?\s*/i, "").trim())
+      .filter((line) => line.length > 14 && line.length < 240))
+      .slice(0, 25);
+  },
+
+  generateObjectives(existingObjectives = "", unpacked, keyConcepts = [], materialObjectives = []) {
     const concepts = keyConcepts.length ? keyConcepts : ["the lesson concept"];
     const existing = this.normalizeLines(existingObjectives);
+    const material = this.normalizeLines(materialObjectives.join("\n"));
+    const sourceObjectives = this.unique([...existing, ...material]);
     const knowledge = [
       `Identify important terms and ideas related to ${concepts[0]}.`,
       `Explain how ${concepts[0]} connects to the target learning competency.`
@@ -208,14 +245,14 @@ const LessonAnalyzer = {
     ];
 
     return {
-      knowledge: this.unique([...existing.filter((item) => /identify|describe|explain|define|recognize/i.test(item)), ...knowledge]).slice(0, 3),
-      skills: this.unique([...existing.filter((item) => /apply|demonstrate|analyze|create|construct|solve/i.test(item)), ...skills]).slice(0, 3),
-      attitude: this.unique([...existing.filter((item) => /value|appreciate|participate|cooperate|respect|responsib/i.test(item)), ...attitude]).slice(0, 3),
-      all: this.unique([...existing, ...knowledge, ...skills, ...attitude])
+      knowledge: this.unique([...sourceObjectives.filter((item) => /identify|describe|explain|define|recognize|distinguish|label|enumerate|compare/i.test(item)), ...knowledge]).slice(0, 3),
+      skills: this.unique([...sourceObjectives.filter((item) => /apply|demonstrate|analyze|create|construct|solve|perform|present|write|draw|use|make|develop/i.test(item)), ...skills]).slice(0, 3),
+      attitude: this.unique([...sourceObjectives.filter((item) => /value|appreciate|participate|cooperate|respect|responsib|care|collaborat|openness|integrity/i.test(item)), ...attitude]).slice(0, 3),
+      all: this.unique([...sourceObjectives, ...knowledge, ...skills, ...attitude])
     };
   },
 
-  buildSessionPlan(keyConcepts = [], competencies = [], objectives) {
+  buildSessionPlan(keyConcepts = [], competencies = [], objectives, materialActivities = []) {
     const concepts = keyConcepts.length ? keyConcepts : ["lesson concept"];
     const competencyPool = competencies.length ? competencies : [this.reviewLabel];
     const progression = [
@@ -283,9 +320,9 @@ const LessonAnalyzer = {
           attitude: attitudeObjective
         },
         successCriteria: this.buildSuccessCriteria(session, concept),
-        learningExperience: this.suggestActivities(session, concepts, competency),
-        learningTasks: this.buildLearningTasks(session, concept),
-        activities: this.suggestActivities(session, concepts, competency),
+        learningExperience: this.suggestActivities(session, concepts, competency, materialActivities),
+        learningTasks: this.buildLearningTasks(session, concept, materialActivities),
+        activities: this.suggestActivities(session, concepts, competency, materialActivities),
         assessment: this.suggestAssessment(session, concepts),
         reflection: this.buildReflectionPrompt(session, concepts),
         reflectionPrompt: this.buildReflectionPrompt(session, concepts),
@@ -351,7 +388,8 @@ const LessonAnalyzer = {
     return criteria[session];
   },
 
-  buildLearningTasks(session, concept) {
+  buildLearningTasks(session, concept, materialActivities = []) {
+    const materialTasks = this.pickSessionItems(materialActivities, session, 2);
     const tasks = {
       1: [`Answer diagnostic prompts about ${concept}.`, "Complete a quick prior-knowledge organizer.", "Share initial ideas with a partner."],
       2: [`Complete a concept map for ${concept}.`, "Sort examples and non-examples.", "Discuss guided questions in groups."],
@@ -359,11 +397,12 @@ const LessonAnalyzer = {
       4: [`Analyze a scenario involving ${concept}.`, "Evaluate possible solutions.", "Present group reasoning."],
       5: [`Create a performance output applying ${concept}.`, "Complete self-assessment and reflection.", "Plan an enrichment or remediation step."]
     };
-    return tasks[session];
+    return this.unique([...materialTasks, ...(tasks[session] || [])]).slice(0, 4);
   },
 
-  suggestActivities(session, concepts, competency) {
+  suggestActivities(session, concepts, competency, materialActivities = []) {
     const primary = concepts[(session - 1) % concepts.length];
+    const materialFlow = this.pickSessionItems(materialActivities, session, 3);
     const map = {
       1: [`Begin with a familiar situation or question connected to ${primary}.`, "Use Think-Pair-Share so learners can surface prior knowledge.", "Clarify key terms through short teacher-guided discussion."],
       2: [`Develop the concept of ${primary} through examples, non-examples, and guided questioning.`, "Let learners complete a concept map or organizer in pairs.", "Process answers as a class and correct misconceptions immediately."],
@@ -371,7 +410,21 @@ const LessonAnalyzer = {
       4: [`Present a real-life case or problem involving ${primary}.`, "Let groups analyze options, evaluate evidence, and justify their answer.", "Facilitate sharing and comparison of group reasoning."],
       5: ["Let learners complete a performance task or final output.", "Use a rubric or checklist for self, peer, and teacher assessment.", "End with reflection and an enrichment or remediation direction."]
     };
-    return map[session] || [`Learning activity aligned with ${competency}`];
+    return this.unique([...materialFlow, ...(map[session] || [`Learning activity aligned with ${competency}`])]).slice(0, 5);
+  },
+
+  pickSessionItems(items = [], session = 1, count = 3) {
+    if (!Array.isArray(items) || !items.length) return [];
+
+    const sessionPattern = new RegExp(`(?:session|day|lesson|activity)\\s*(?:no\\.?\\s*)?${session}\\b`, "i");
+    const direct = items.filter((item) => sessionPattern.test(item));
+    if (direct.length) return direct.slice(0, count);
+
+    const start = Math.max(0, (session - 1) * count);
+    const sequential = items.slice(start, start + count);
+    if (sequential.length) return sequential;
+
+    return items.slice((session - 1) % items.length, ((session - 1) % items.length) + count);
   },
 
   suggestAssessment(session, concepts) {

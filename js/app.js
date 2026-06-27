@@ -29,6 +29,7 @@ const App = {
     this.saveBtn = document.getElementById("saveBtn");
     this.printBtn = document.getElementById("printBtn");
     this.wordBtn = document.getElementById("wordBtn");
+    this.pptBtn = document.getElementById("pptBtn");
     this.clearLibraryBtn = document.getElementById("clearLibraryBtn");
     this.lessonLibrary = document.getElementById("lessonLibrary");
     this.templateInputs = Array.from(document.querySelectorAll('input[name="templateMode"]'));
@@ -55,6 +56,7 @@ const App = {
     this.saveBtn?.addEventListener("click", () => this.saveLessonToLibrary());
     this.printBtn?.addEventListener("click", () => PreviewManager.print());
     this.wordBtn?.addEventListener("click", () => PreviewManager.exportWord());
+    this.pptBtn?.addEventListener("click", () => this.exportPowerPoint());
     this.clearLibraryBtn?.addEventListener("click", () => this.clearLibrary());
     this.uploadReferenceBtn?.addEventListener("click", () => this.referenceUpload?.click());
     this.referenceUpload?.addEventListener("change", () => this.handleReferenceUpload());
@@ -147,11 +149,67 @@ const App = {
 
   extractReferenceText(file) {
     const canReadText = /text|plain|csv|markdown/i.test(file.type) || /\.(txt|md|csv)$/i.test(file.name);
-    if (!canReadText) return Promise.resolve("");
+    if (/\.pdf$/i.test(file.name) || /pdf/i.test(file.type)) {
+      return this.extractPdfText(file);
+    }
+    if (/\.docx$/i.test(file.name) || /officedocument\.wordprocessingml\.document/i.test(file.type)) {
+      return this.extractDocxText(file);
+    }
+    if (!canReadText) return this.extractLooseText(file);
 
     return new Promise((resolve) => {
       const reader = new FileReader();
       reader.onload = () => resolve(String(reader.result || "").slice(0, 50000));
+      reader.onerror = () => resolve("");
+      reader.readAsText(file);
+    });
+  },
+
+  async extractPdfText(file) {
+    if (!window.pdfjsLib) return this.extractLooseText(file);
+
+    try {
+      const buffer = await file.arrayBuffer();
+      const pdf = await window.pdfjsLib.getDocument({ data: buffer }).promise;
+      const pageTexts = [];
+
+      for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+        const page = await pdf.getPage(pageNumber);
+        const content = await page.getTextContent();
+        pageTexts.push(content.items.map((item) => item.str).join(" "));
+        if (pageTexts.join("\n").length > 50000) break;
+      }
+
+      return pageTexts.join("\n").slice(0, 50000);
+    } catch (error) {
+      console.warn("Unable to extract PDF text", error);
+      return this.extractLooseText(file);
+    }
+  },
+
+  async extractDocxText(file) {
+    if (!window.mammoth) return this.extractLooseText(file);
+
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const result = await window.mammoth.extractRawText({ arrayBuffer });
+      return String(result.value || "").slice(0, 50000);
+    } catch (error) {
+      console.warn("Unable to extract DOCX text", error);
+      return this.extractLooseText(file);
+    }
+  },
+
+  extractLooseText(file) {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const text = String(reader.result || "")
+          .replace(/[^\x09\x0A\x0D\x20-\x7E\u00A0-\uFFFF]+/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+        resolve(text.length > 120 ? text.slice(0, 50000) : "");
+      };
       reader.onerror = () => resolve("");
       reader.readAsText(file);
     });
@@ -366,6 +424,35 @@ const App = {
     this.preview.innerHTML = LessonGenerator.buildLesson(this.getFormData());
     PreviewManager.initialize();
     this.setStatus(`Smart ILAW lesson draft generated${this.smartDraft?.confidence ? ` (${this.smartDraft.confidence} confidence)` : ""}`);
+  },
+
+  async exportPowerPoint() {
+    if (typeof PresentationManager === "undefined") {
+      this.setStatus("PowerPoint generator is not available.");
+      return;
+    }
+
+    const data = this.getFormData();
+    const hasCoreText = [data.lessonTitle, data.topic, data.competency, data.objectives, data.references, data.onlineReferences]
+      .some((value) => value.trim().length > 0) || data.referenceFiles.length > 0;
+
+    if (!hasCoreText) {
+      this.setStatus("Enter lesson details or upload reference materials before generating PowerPoint.");
+      return;
+    }
+
+    this.pptBtn.disabled = true;
+    this.setStatus("Generating PowerPoint and searching session images...");
+
+    try {
+      await PresentationManager.export(data, this.smartDraft);
+      this.setStatus("PowerPoint presentation generated");
+    } catch (error) {
+      console.error("Unable to generate PowerPoint", error);
+      this.setStatus("Unable to generate PowerPoint. Check lesson content and try again.");
+    } finally {
+      this.pptBtn.disabled = false;
+    }
   },
 
   applyGeneratedFields(fields = {}) {
