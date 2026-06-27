@@ -233,6 +233,52 @@ textarea.form-control {
   font-weight: 600;
 }
 
+.reference-upload-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.reference-upload-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reference-file-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.reference-file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-soft);
+}
+
+.reference-file-item strong,
+.reference-file-item span {
+  display: block;
+}
+
+.reference-file-item strong {
+  color: var(--text);
+  font-size: 0.95rem;
+  word-break: break-word;
+}
+
+.reference-file-item span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
 .preview-shell {
   background: var(--surface-soft);
   border: 1px dashed var(--border);
@@ -428,6 +474,11 @@ textarea.form-control {
   }
 
   .template-switch {
+    flex-direction: column;
+  }
+
+  .reference-file-item {
+    align-items: flex-start;
     flex-direction: column;
   }
 }

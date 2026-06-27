@@ -4,11 +4,13 @@ const App = {
   initialized: false,
   draftKey: "ilaw-lesson-draft",
   lessonsKey: "ilaw-lesson-library",
+  referenceFiles: [],
 
   init() {
     this.cacheDOM();
     this.bindEvents();
     this.loadDraft();
+    this.renderReferenceFiles();
     this.renderLibrary();
     this.updateTemplateVisibility();
     this.renderPreview();
@@ -30,6 +32,10 @@ const App = {
     this.lessonLibrary = document.getElementById("lessonLibrary");
     this.templateInputs = Array.from(document.querySelectorAll('input[name="templateMode"]'));
     this.day5Container = document.getElementById("day5Container");
+    this.referenceUpload = document.getElementById("referenceUpload");
+    this.uploadReferenceBtn = document.getElementById("uploadReferenceBtn");
+    this.clearReferencesBtn = document.getElementById("clearReferencesBtn");
+    this.referenceFileList = document.getElementById("referenceFileList");
   },
 
   bindEvents() {
@@ -48,6 +54,9 @@ const App = {
     this.printBtn?.addEventListener("click", () => PreviewManager.print());
     this.wordBtn?.addEventListener("click", () => PreviewManager.exportWord());
     this.clearLibraryBtn?.addEventListener("click", () => this.clearLibrary());
+    this.uploadReferenceBtn?.addEventListener("click", () => this.referenceUpload?.click());
+    this.referenceUpload?.addEventListener("change", () => this.handleReferenceUpload());
+    this.clearReferencesBtn?.addEventListener("click", () => this.clearReferenceFiles());
   },
 
   handleInput() {
@@ -83,8 +92,83 @@ const App = {
       assessment: document.getElementById("assessment")?.value || "",
       waysForward: document.getElementById("waysForward")?.value || "",
       reflections: document.getElementById("reflections")?.value || "",
-      aiUse: document.getElementById("aiUse")?.value || ""
+      aiUse: document.getElementById("aiUse")?.value || "",
+      referenceFiles: this.referenceFiles
     };
+  },
+
+  handleReferenceUpload() {
+    const files = Array.from(this.referenceUpload?.files || []);
+    if (!files.length) return;
+
+    const existingKeys = new Set(this.referenceFiles.map((file) => `${file.name}-${file.size}`));
+    const uploaded = files
+      .map((file) => ({
+        name: file.name,
+        type: file.type || "Unknown file type",
+        size: file.size,
+        addedAt: new Date().toISOString()
+      }))
+      .filter((file) => !existingKeys.has(`${file.name}-${file.size}`));
+
+    this.referenceFiles = [...this.referenceFiles, ...uploaded];
+    this.referenceUpload.value = "";
+    this.renderReferenceFiles();
+    this.handleInput();
+    this.setStatus(`${uploaded.length || files.length} reference material${(uploaded.length || files.length) > 1 ? "s" : ""} added`);
+  },
+
+  clearReferenceFiles() {
+    this.referenceFiles = [];
+    if (this.referenceUpload) {
+      this.referenceUpload.value = "";
+    }
+    this.renderReferenceFiles();
+    this.handleInput();
+    this.setStatus("Reference materials cleared");
+  },
+
+  renderReferenceFiles() {
+    if (!this.referenceFileList) return;
+
+    if (!this.referenceFiles.length) {
+      this.referenceFileList.innerHTML = '<div class="text-muted">No reference materials uploaded yet.</div>';
+      return;
+    }
+
+    this.referenceFileList.innerHTML = this.referenceFiles.map((file, index) => `
+      <div class="reference-file-item">
+        <div>
+          <strong>${this.escapeHTML(file.name)}</strong>
+          <span>${this.escapeHTML(this.formatFileSize(file.size))} &middot; ${this.escapeHTML(file.type || "Unknown file type")}</span>
+        </div>
+        <button type="button" class="btn btn-sm btn-link text-danger" data-reference-index="${index}">Remove</button>
+      </div>
+    `).join("");
+
+    this.referenceFileList.querySelectorAll("button[data-reference-index]").forEach((button) => {
+      button.addEventListener("click", () => {
+        this.referenceFiles.splice(Number(button.dataset.referenceIndex), 1);
+        this.renderReferenceFiles();
+        this.handleInput();
+        this.setStatus("Reference material removed");
+      });
+    });
+  },
+
+  formatFileSize(size = 0) {
+    if (size < 1024) return `${size} B`;
+    if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
+    return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+  },
+
+  escapeHTML(value) {
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
   },
 
   getTemplateMode() {
@@ -136,6 +220,10 @@ const App = {
     try {
       const draft = JSON.parse(stored);
       Object.entries(draft).forEach(([key, value]) => {
+        if (key === "referenceFiles") {
+          this.referenceFiles = Array.isArray(value) ? value : [];
+          return;
+        }
         const element = document.getElementById(key);
         if (element) {
           element.value = value;
@@ -147,6 +235,7 @@ const App = {
         templateInput.checked = true;
       }
       this.updateTemplateVisibility();
+      this.renderReferenceFiles();
       this.renderPreview();
     } catch (error) {
       console.warn("Unable to restore draft", error);
@@ -158,6 +247,8 @@ const App = {
     document.getElementById("term").value = "First Term";
     document.getElementById("grade").value = "";
     document.querySelector('input[name="templateMode"][value="5-day"]').checked = true;
+    this.referenceFiles = [];
+    this.renderReferenceFiles();
     this.updateTemplateVisibility();
     this.saveDraft();
     this.renderPreview();
@@ -230,6 +321,10 @@ const App = {
 
     Object.entries(lesson).forEach(([key, value]) => {
       if (key === "id" || key === "title" || key === "createdAt") return;
+      if (key === "referenceFiles") {
+        this.referenceFiles = Array.isArray(value) ? value : [];
+        return;
+      }
       const element = document.getElementById(key);
       if (element) {
         element.value = value;
@@ -241,6 +336,7 @@ const App = {
       templateInput.checked = true;
     }
     this.updateTemplateVisibility();
+    this.renderReferenceFiles();
     this.saveDraft();
     this.renderPreview();
     this.setStatus(`Loaded ${lesson.title}`);

@@ -125,6 +125,24 @@
 
             <div class="panel-card">
               <div class="panel-title">
+                <h3>Reference Materials</h3>
+                <p>Attach BOW, learning exemplars, learning modules, and other materials used for this plan.</p>
+              </div>
+              <input id="referenceUpload" class="visually-hidden" type="file" multiple accept=".pdf,.doc,.docx,.txt,.rtf,.ppt,.pptx,.xls,.xlsx,.csv,.md,image/*">
+              <div class="reference-upload-actions">
+                <button type="button" class="btn btn-outline-primary" id="uploadReferenceBtn">
+                  <i class="bi bi-upload"></i>
+                  Upload References
+                </button>
+                <button type="button" class="btn btn-outline-secondary" id="clearReferencesBtn">Clear Files</button>
+              </div>
+              <div id="referenceFileList" class="reference-file-list">
+                <div class="text-muted">No reference materials uploaded yet.</div>
+              </div>
+            </div>
+
+            <div class="panel-card">
+              <div class="panel-title">
                 <h3>Lesson Details</h3>
                 <p>Compose the teaching sequence and assessment plan.</p>
               </div>

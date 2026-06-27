@@ -30,6 +30,11 @@ const LessonGenerator = {
     `;
   },
 
+  formatReferenceFiles(files = []) {
+    if (!Array.isArray(files) || !files.length) return "";
+    return files.map((file) => `Uploaded material: ${file.name}`).join("\n");
+  },
+
   buildLesson(data) {
     const topic = data.topic || "the lesson topic";
     const competency = data.competency || "the learning competency";
@@ -50,7 +55,9 @@ const LessonGenerator = {
     const assessment = data.assessment || `Use oral questioning, observation, learner output, and a short reflection to check whether learners can demonstrate ${competency}.`;
     const waysForward = data.waysForward || `Provide enrichment or support tasks that allow learners to apply ${topic} beyond class time.`;
     const reflections = data.reflections || "Record learner progress, misconceptions, participation, and adjustments needed for the next session.";
-    const references = data.references || data.resources || "Curriculum guide/MELCs, teacher references, learner materials, and locally available learning resources.";
+    const uploadedReferences = this.formatReferenceFiles(data.referenceFiles);
+    const manualReferences = data.references || data.resources || "Curriculum guide/MELCs, teacher references, learner materials, and locally available learning resources.";
+    const references = [manualReferences, uploadedReferences].filter(Boolean).join("\n");
     const aiUse = data.aiUse || "AI assisted in organizing the lesson plan format and drafting editable learning activities; the teacher reviewed and contextualized all content.";
 
     return `
