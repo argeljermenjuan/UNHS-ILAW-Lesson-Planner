@@ -80,10 +80,16 @@ const App = {
       term: document.getElementById("term")?.value || "",
       week: document.getElementById("week")?.value || "",
       duration: document.getElementById("duration")?.value || "",
+      languagePreference: document.getElementById("languagePreference")?.value || "English",
+      languageSupport: document.getElementById("languageSupport")?.value || "",
       lessonTitle: document.getElementById("lessonTitle")?.value || "",
       topic: document.getElementById("topic")?.value || "",
       competency: document.getElementById("competency")?.value || "",
+      competencyCode: document.getElementById("competencyCode")?.value || "",
+      contentStandard: document.getElementById("contentStandard")?.value || "",
+      performanceStandard: document.getElementById("performanceStandard")?.value || "",
       objectives: document.getElementById("objectives")?.value || "",
+      teacherInstructions: document.getElementById("teacherInstructions")?.value || "",
       objectiveSession1: document.getElementById("objectiveSession1")?.value || "",
       objectiveSession2: document.getElementById("objectiveSession2")?.value || "",
       objectiveSession3: document.getElementById("objectiveSession3")?.value || "",
@@ -406,7 +412,7 @@ const App = {
 
   async generateILAWPlan() {
     const data = this.getFormData();
-    const hasCoreText = [data.lessonTitle, data.topic, data.competency, data.objectives, data.references, data.onlineReferences]
+    const hasCoreText = [data.topic, data.contentStandard, data.performanceStandard, data.objectives, data.grade, data.learningArea, data.term, data.languageSupport, data.teacherInstructions, data.lessonTitle, data.competency, data.references, data.onlineReferences]
       .some((value) => value.trim().length > 0) || data.referenceFiles.length > 0;
 
     if (!hasCoreText) {
@@ -460,7 +466,7 @@ const App = {
     }
 
     const data = this.getFormData();
-    const hasCoreText = [data.lessonTitle, data.topic, data.competency, data.objectives, data.references, data.onlineReferences]
+    const hasCoreText = [data.topic, data.contentStandard, data.performanceStandard, data.objectives, data.grade, data.learningArea, data.term, data.languageSupport, data.teacherInstructions, data.lessonTitle, data.competency, data.references, data.onlineReferences]
       .some((value) => value.trim().length > 0) || data.referenceFiles.length > 0;
 
     if (!hasCoreText) {
@@ -533,6 +539,7 @@ const App = {
     this.form.reset();
     document.getElementById("term").value = "First Term";
     document.getElementById("grade").value = "";
+    document.getElementById("languagePreference").value = "English";
     document.querySelector('input[name="templateMode"][value="5-day"]').checked = true;
     this.referenceFiles = [];
     this.smartDraft = null;

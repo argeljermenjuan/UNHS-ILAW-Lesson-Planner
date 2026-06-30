@@ -42,6 +42,7 @@ def build_prompt(payload):
     local_draft = payload.get("localDraft") or {}
     reference_text = payload.get("referenceText") or "No extracted reference text."
     sessions = 4 if lesson.get("templateMode") == "4-day" else 5
+    language = lesson.get("languagePreference") or "English"
 
     return f"""
 You are an expert MATATAG Curriculum planner and ILAW Lesson Plan specialist helping Urbiztondo National High School teachers create an editable ILAW lesson plan.
@@ -49,6 +50,14 @@ You are an expert MATATAG Curriculum planner and ILAW Lesson Plan specialist hel
 Populate the existing ILAW Lesson Plan template only. Do not modify the template structure, page orientation, margins, font size, spacing, tables, labels, or formatting. The document is already configured for A4 Landscape printing, so fill only the designated fields.
 
 Generate a concise {sessions}-session lesson plan from the teacher inputs. Follow DepEd-style classroom language, keep activities practical for Philippine secondary classrooms, and preserve any teacher-provided facts.
+
+Required teacher inputs are limited to Topic, Content Standard, Performance Standard, Lesson Objectives, Grade Level, Learning Area/Subject, Term, Language Preference, Language Support, and optional Teacher Revision/Suggestions/Special Instructions. All other lesson plan sections must be intelligently generated.
+
+Language rule:
+- The selected language is {language}.
+- If selected language is English, generate every field entirely in English.
+- If selected language is Filipino, generate every field entirely in Filipino using appropriate educational terminology.
+- Keep terminology, instructions, assessment language, reflections, and AI declaration consistent with the selected language.
 
 Content requirements:
 - Target approximately 800-1200 words total.
@@ -63,8 +72,19 @@ ILAW requirements:
 - Generate all four components: Intentions, Learning Experiences, Assessment, and Ways Forward.
 - Align every part with the provided MATATAG competency.
 - Integrate Knowledge, Skills, and Attitudes (KSA) in the learning objectives.
+- In Intentions, vertically align Content Standard, Performance Standard, Learning Competency, Learning Objectives, Knowledge, Skills, and Attitudes.
+- Distribute objectives across Session 1 to Session {sessions} using simple-to-complex and concrete-to-abstract progression.
+- Generate learner context automatically from grade level, learning area, topic, language support, teacher suggestions, and Philippine public school realities. Include strengths, interests, proficiency level, local context, barriers, inclusion, and differentiation.
+- Generate pre-lesson activities that activate prior knowledge, motivation, curiosity, and readiness.
+- Generate concise session flows that clarify objectives, scaffold learning, monitor well-being and understanding, connect prior learning, encourage collaboration, promote reflection, and support inclusion.
+- Generate formative assessment for every session with accommodations and feedback opportunities.
+- Generate Ways Forward with remediation, enrichment, home/community/independent learning opportunities based on likely learner outcomes.
+- Generate teacher reflection prompts for every session.
+- Include meaningful integration opportunities for literacy, numeracy, values, digital literacy, financial literacy, environmental awareness, SDGs, emerging technologies, or write N/A when not appropriate.
 - Use only activities explicitly stated in the Lesson Exemplar or source material when such material is provided. If no source activity is provided, use concise teacher-reviewed placeholder activities aligned to the competency.
 - Ensure alignment among objectives, activities, assessment, remediation/intervention, enrichment, and reflection.
+- Analyze the optional Teacher Revision, Suggestions, or Special Instructions field as an instructional design enhancement layer. Integrate appropriate suggestions across learner context, learning experiences, assessment, ways forward, integration, resources, references, and reflections. If a suggestion conflicts with the standards/objectives, adjust it while preserving the teacher's intent.
+- Use realistic, low-cost, learner-centered, contextualized activities appropriate for Philippine public schools.
 
 Return only valid JSON. Do not wrap it in markdown.
 
@@ -82,6 +102,9 @@ Required JSON shape:
     "term": "",
     "duration": "",
     "competency": "",
+    "competencyCode": "",
+    "contentStandard": "",
+    "performanceStandard": "",
     "objectives": "",
     "objectiveSession1": "",
     "objectiveSession2": "",
@@ -120,7 +143,11 @@ Required JSON shape:
   }}
 }}
 
-For every session field, include concise but complete lesson-plan text. Leave day5-related fields empty when the template is 4-day. The aiUse field must mention Gemini AI assistance and teacher review/contextualization.
+For every session field, include concise but complete lesson-plan text. Write objectiveSession fields as compact KSA lines:
+Knowledge: ...
+Skills: ...
+Attitudes: ...
+Leave day5-related fields empty when the template is 4-day. The aiUse field must mention Gemini AI assistance and teacher review/contextualization in the selected language.
 
 Final validation before returning JSON:
 - Existing template structure remains unchanged.
@@ -128,6 +155,9 @@ Final validation before returning JSON:
 - Intentions, Learning Experiences, Assessment, and Ways Forward are present.
 - Objectives include Knowledge, Skills, and Attitudes.
 - Activities and assessments are aligned with the MATATAG competency and source material.
+- Content Standard, Performance Standard, Learning Competency, and objectives are vertically aligned.
+- Selected language is used consistently.
+- Optional teacher suggestions have been considered and integrated where pedagogically appropriate.
 - The lesson plan is ready for immediate classroom use.
 
 Teacher inputs:

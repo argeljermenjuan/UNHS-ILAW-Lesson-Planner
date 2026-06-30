@@ -68,6 +68,10 @@ const LessonGenerator = {
   buildLesson(data) {
     const topic = data.topic || "the lesson topic";
     const competency = data.competency || "the learning competency";
+    const contentStandard = data.contentStandard || "Content standard to be aligned with the MATATAG Curriculum.";
+    const performanceStandard = data.performanceStandard || "Performance standard to be demonstrated through learner output.";
+    const competencyCode = data.competencyCode || "N/A";
+    const term = data.term || "";
     const sessions = data.templateMode === "4-day" ? 4 : 5;
     const sessionFields = ["day1", "day2", "day3", "day4", "day5"].slice(0, sessions);
     const sessionHeaders = sessionFields.map((_, index) => `<th>Session ${index + 1}</th>`).join("");
@@ -104,6 +108,9 @@ const LessonGenerator = {
           <tbody>
             ${this.metadataRow("Name of Lesson", data.lessonTitle || topic)}
             ${this.metadataRow("Learning Area/s", data.learningArea)}
+            ${this.metadataRow("Term", term)}
+            ${this.metadataRow("Topic", topic)}
+            ${this.metadataRow("Competency Code", competencyCode)}
             ${this.metadataRow("Designed by Teacher/s", data.teacherName)}
             ${this.metadataRow("Designed for which Grade Level and Section", [data.grade, data.section].filter(Boolean).join(" - "))}
             ${this.metadataRow("No. of Sessions", `${sessions} session${sessions > 1 ? "s" : ""}${data.week ? ` / ${data.week}` : ""}${data.duration ? ` / ${data.duration}` : ""}`)}
@@ -127,6 +134,14 @@ const LessonGenerator = {
             <tr>
               <th><span>Learning Competency:</span> Write the competency/ies from the curriculum and the content or performance standards applicable to the sessions.</th>
               ${sessionFields.map(() => this.cell(competency)).join("")}
+            </tr>
+            <tr>
+              <th><span>Content Standard:</span> Identify the content standard addressed in the sessions.</th>
+              ${sessionFields.map(() => this.cell(contentStandard)).join("")}
+            </tr>
+            <tr>
+              <th><span>Performance Standard:</span> Identify the expected performance evidence for the sessions.</th>
+              ${sessionFields.map(() => this.cell(performanceStandard)).join("")}
             </tr>
             <tr>
               <th><span>Learning Objectives:</span> Write the smaller knowledge, skills, or tasks learners will work on and show by the end of the sessions.</th>

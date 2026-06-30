@@ -111,6 +111,17 @@
                   <label class="form-label" for="duration">Duration</label>
                   <input id="duration" class="form-control js-field" type="text">
                 </div>
+                <div class="col-md-4">
+                  <label class="form-label" for="languagePreference">Language Preference</label>
+                  <select id="languagePreference" class="form-select js-field">
+                    <option value="English">English</option>
+                    <option value="Filipino">Filipino</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label" for="languageSupport">Language Support</label>
+                  <input id="languageSupport" class="form-control js-field" type="text" placeholder="e.g., bilingual vocabulary, reading support">
+                </div>
               </div>
             </div>
 
@@ -170,6 +181,18 @@
                   <label class="form-label" for="competency">Learning Competency</label>
                   <textarea id="competency" class="form-control js-field" rows="3"></textarea>
                 </div>
+                <div class="col-md-6">
+                  <label class="form-label" for="competencyCode">Competency Code</label>
+                  <input id="competencyCode" class="form-control js-field" type="text">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label" for="contentStandard">Content Standard</label>
+                  <textarea id="contentStandard" class="form-control js-field" rows="2"></textarea>
+                </div>
+                <div class="col-12">
+                  <label class="form-label" for="performanceStandard">Performance Standard</label>
+                  <textarea id="performanceStandard" class="form-control js-field" rows="2"></textarea>
+                </div>
                 <div class="col-12">
                   <label class="form-label" for="objectives">Learning Objectives</label>
                   <textarea id="objectives" class="form-control js-field" rows="3"></textarea>
@@ -195,61 +218,23 @@
                   <input id="reflectionSession5" class="js-field" type="hidden">
                 </div>
                 <div class="col-12">
-                  <label class="form-label" for="learnerContext">Learner Context</label>
-                  <textarea id="learnerContext" class="form-control js-field" rows="3"></textarea>
+                  <label class="form-label" for="teacherInstructions">Teacher Revision, Suggestions, or Special Instructions (Optional)</label>
+                  <textarea id="teacherInstructions" class="form-control js-field" rows="3" placeholder="Add preferred strategies, learner needs, local examples, available resources, or revisions to integrate into the generated plan."></textarea>
                 </div>
-                <div class="col-12">
-                  <label class="form-label" for="preLesson">Pre-Lesson</label>
-                  <textarea id="preLesson" class="form-control js-field" rows="3"></textarea>
-                </div>
-                <div class="col-12">
-                  <label class="form-label" for="day1">Day 1</label>
-                  <textarea id="day1" class="form-control js-field" rows="3"></textarea>
-                </div>
-                <div class="col-12">
-                  <label class="form-label" for="day2">Day 2</label>
-                  <textarea id="day2" class="form-control js-field" rows="3"></textarea>
-                </div>
-                <div class="col-12">
-                  <label class="form-label" for="day3">Day 3</label>
-                  <textarea id="day3" class="form-control js-field" rows="3"></textarea>
-                </div>
-                <div class="col-12">
-                  <label class="form-label" for="day4">Day 4</label>
-                  <textarea id="day4" class="form-control js-field" rows="3"></textarea>
-                </div>
-                <div class="col-12" id="day5Container">
-                  <label class="form-label" for="day5">Day 5</label>
-                  <textarea id="day5" class="form-control js-field" rows="3"></textarea>
-                </div>
-                <div class="col-12">
-                  <label class="form-label" for="resources">Resources</label>
-                  <textarea id="resources" class="form-control js-field" rows="3"></textarea>
-                </div>
-                <div class="col-12">
-                  <label class="form-label" for="references">References</label>
-                  <textarea id="references" class="form-control js-field" rows="3"></textarea>
-                </div>
-                <div class="col-12">
-                  <label class="form-label" for="integration">Opportunities for Integration</label>
-                  <textarea id="integration" class="form-control js-field" rows="3"></textarea>
-                </div>
-                <div class="col-12">
-                  <label class="form-label" for="assessment">Assessment</label>
-                  <textarea id="assessment" class="form-control js-field" rows="3"></textarea>
-                </div>
-                <div class="col-12">
-                  <label class="form-label" for="waysForward">Ways Forward</label>
-                  <textarea id="waysForward" class="form-control js-field" rows="3"></textarea>
-                </div>
-                <div class="col-12">
-                  <label class="form-label" for="reflections">Reflections</label>
-                  <textarea id="reflections" class="form-control js-field" rows="3"></textarea>
-                </div>
-                <div class="col-12">
-                  <label class="form-label" for="aiUse">Declaration of AI Use</label>
-                  <textarea id="aiUse" class="form-control js-field" rows="3"></textarea>
-                </div>
+                <input id="learnerContext" class="js-field" type="hidden">
+                <input id="preLesson" class="js-field" type="hidden">
+                <input id="day1" class="js-field" type="hidden">
+                <input id="day2" class="js-field" type="hidden">
+                <input id="day3" class="js-field" type="hidden">
+                <input id="day4" class="js-field" type="hidden">
+                <input id="day5" class="js-field" type="hidden">
+                <input id="resources" class="js-field" type="hidden">
+                <input id="references" class="js-field" type="hidden">
+                <input id="integration" class="js-field" type="hidden">
+                <input id="assessment" class="js-field" type="hidden">
+                <input id="waysForward" class="js-field" type="hidden">
+                <input id="reflections" class="js-field" type="hidden">
+                <input id="aiUse" class="js-field" type="hidden">
               </div>
             </div>
           </form>
