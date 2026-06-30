@@ -28,5 +28,7 @@ To use another port:
 
 - This is a static browser application.
 - No Node.js install is required to run the app.
+- Gemini lesson generation runs through `server.py`, which keeps the API key out of browser JavaScript. The local `.env` file contains `GEMINI_API_KEY` and is ignored by git.
+- Lesson details and extracted reference text are sent to Gemini only when the teacher clicks Generate ILAW Plan.
 - TXT, MD, and CSV uploads can be read as text in the browser.
 - PDF, DOCX, and PPTX files are currently recorded as uploaded references and marked for teacher review until full parser support is added.

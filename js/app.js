@@ -404,7 +404,7 @@ const App = {
     }
   },
 
-  generateILAWPlan() {
+  async generateILAWPlan() {
     const data = this.getFormData();
     const hasCoreText = [data.lessonTitle, data.topic, data.competency, data.objectives, data.references, data.onlineReferences]
       .some((value) => value.trim().length > 0) || data.referenceFiles.length > 0;
@@ -414,16 +414,43 @@ const App = {
       return;
     }
 
-    if (typeof LessonBuilder !== "undefined") {
-      const built = LessonBuilder.build(data);
+    const buttons = [this.generatePlanBtn, this.generatePlanBtnInline].filter(Boolean);
+    buttons.forEach((button) => {
+      button.disabled = true;
+    });
+    this.setStatus("Generating ILAW lesson draft with Gemini...");
+
+    try {
+      const localDraft = typeof LessonBuilder !== "undefined" ? LessonBuilder.build(data) : { fields: {}, analysis: {} };
+      const built = typeof GeminiLessonClient !== "undefined"
+        ? await GeminiLessonClient.generateLesson(data, localDraft)
+        : localDraft;
+
       this.smartDraft = built.analysis;
       this.applyGeneratedFields(built.fields);
-    }
+      this.saveDraft();
+      this.preview.innerHTML = LessonGenerator.buildLesson(this.getFormData());
+      PreviewManager.initialize();
+      this.setStatus(`Smart ILAW lesson draft generated${this.smartDraft?.confidence ? ` (${this.smartDraft.confidence} confidence)` : ""}`);
+    } catch (error) {
+      console.error("Unable to generate Gemini lesson draft", error);
 
-    this.saveDraft();
-    this.preview.innerHTML = LessonGenerator.buildLesson(this.getFormData());
-    PreviewManager.initialize();
-    this.setStatus(`Smart ILAW lesson draft generated${this.smartDraft?.confidence ? ` (${this.smartDraft.confidence} confidence)` : ""}`);
+      if (typeof LessonBuilder !== "undefined") {
+        const fallback = LessonBuilder.build(data);
+        this.smartDraft = fallback.analysis;
+        this.applyGeneratedFields(fallback.fields);
+        this.saveDraft();
+        this.preview.innerHTML = LessonGenerator.buildLesson(this.getFormData());
+        PreviewManager.initialize();
+        this.setStatus("Gemini was unavailable. Local Smart Lesson Builder generated the draft.");
+      } else {
+        this.setStatus("Unable to generate the lesson draft. Check server API key or internet connection.");
+      }
+    } finally {
+      buttons.forEach((button) => {
+        button.disabled = false;
+      });
+    }
   },
 
   async exportPowerPoint() {
