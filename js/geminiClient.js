@@ -35,5 +35,22 @@ const GeminiLessonClient = {
     }
 
     return response.json();
+  },
+
+  async extractLessonDetails(data = {}, localDraft = {}) {
+    const response = await fetch("/api/gemini-extract-details", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(this.buildPayload(data, localDraft))
+    });
+
+    if (!response.ok) {
+      const message = await response.text();
+      throw new Error(`Gemini extraction failed (${response.status}): ${message.slice(0, 240)}`);
+    }
+
+    return response.json();
   }
 };

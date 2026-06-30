@@ -22,6 +22,7 @@ const LessonAnalyzer = {
     const keyConcepts = this.extractKeyConcepts(sourceText);
     const standards = this.extractStandards(sourceText);
     const metadata = this.extractGeneralInformation(input, sourceText);
+    const competencyCode = input.competencyCode || this.extractCompetencyCode(sourceText);
     const unpacked = this.unpackCompetencies(learningCompetencies, keyConcepts);
     const materialObjectives = this.extractMaterialObjectives(sourceText);
     const materialActivities = this.extractMaterialActivities(sourceText);
@@ -38,6 +39,7 @@ const LessonAnalyzer = {
       quarterOrTerm: metadata.quarterOrTerm,
       duration: metadata.duration,
       learningCompetencies,
+      competencyCode,
       contentStandard: standards.contentStandard,
       performanceStandard: standards.performanceStandard,
       mostEssentialLearningCompetency: learningCompetencies[0] || this.reviewLabel,
@@ -125,6 +127,14 @@ const LessonAnalyzer = {
       contentStandard: this.findAfterLabel(sourceText, ["content standard"]) || this.reviewLabel,
       performanceStandard: this.findAfterLabel(sourceText, ["performance standard"]) || this.reviewLabel
     };
+  },
+
+  extractCompetencyCode(sourceText = "") {
+    const labeled = this.findAfterLabel(sourceText, ["competency code", "code", "learning competency code"]);
+    if (labeled) return labeled;
+
+    const match = String(sourceText).match(/\b(?:[A-Z]{2,6}[-_ ]?)?(?:[A-Z]{2,6})?-\d+[A-Z]?-\d+(?:-\d+)?\b|\b[A-Z]{2,6}\d{1,2}[A-Z]{0,3}-[a-zA-Z0-9-]+\b/);
+    return match?.[0] || "";
   },
 
   findAfterLabel(text = "", labels = []) {

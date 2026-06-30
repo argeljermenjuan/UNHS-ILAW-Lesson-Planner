@@ -53,6 +53,13 @@ Generate a concise {sessions}-session lesson plan from the teacher inputs. Follo
 
 Required teacher inputs are limited to Topic, Content Standard, Performance Standard, Lesson Objectives, Grade Level, Learning Area/Subject, Term, Language Preference, Language Support, and optional Teacher Revision/Suggestions/Special Instructions. All other lesson plan sections must be intelligently generated.
 
+File analysis and manual override rules:
+- Uploaded files may include PDF, DOCX, DOC, TXT, XLSX, image/OCR sources, curriculum guides, lesson exemplars, learning activity sheets, teaching guides, and existing DLL/DLP/ILAW files.
+- Treat extracted file details as AI suggestions for teacher review.
+- Manual teacher entries always take precedence over uploaded-file extraction and AI recommendations.
+- Use this priority when sources conflict: teacher manual input, uploaded lesson exemplar, curriculum guide, previous lesson context, AI-generated recommendations.
+- If uploaded material lacks required lesson details, infer standards-aligned recommendations and keep them concise.
+
 Language rule:
 - The selected language is {language}.
 - If selected language is English, generate every field entirely in English.
@@ -156,6 +163,7 @@ Final validation before returning JSON:
 - Objectives include Knowledge, Skills, and Attitudes.
 - Activities and assessments are aligned with the MATATAG competency and source material.
 - Content Standard, Performance Standard, Learning Competency, and objectives are vertically aligned.
+- Learning Competency aligns with Competency Code when a code is available.
 - Selected language is used consistently.
 - Optional teacher suggestions have been considered and integrated where pedagogically appropriate.
 - The lesson plan is ready for immediate classroom use.
@@ -169,6 +177,92 @@ Reference text:
 Local rule-based draft to improve, correct, and enrich:
 {json.dumps(local_draft, ensure_ascii=False, indent=2)}
 """.strip()
+
+
+def build_extraction_prompt(payload):
+    lesson = payload.get("lesson") or {}
+    local_draft = payload.get("localDraft") or {}
+    reference_text = payload.get("referenceText") or "No extracted reference text."
+    language = lesson.get("languagePreference") or "English"
+
+    return f"""
+You are an expert Philippine MATATAG Curriculum and ILAW Lesson Plan analyzer.
+
+Analyze uploaded curriculum files, lesson exemplars, activity sheets, teaching guides, DLL/DLP/ILAW files, and extracted text. Return editable Lesson Details suggestions only. Teacher manual entries always take precedence over AI suggestions, so preserve any teacher-provided field exactly unless it is blank.
+
+Priority order:
+1. Teacher manual input
+2. Uploaded lesson exemplar
+3. Curriculum guide
+4. Previous lesson context
+5. AI-generated recommendation
+
+Selected language: {language}
+- Return suggested text in the selected language.
+- Use professional DepEd/MATATAG terminology.
+
+Generate or infer missing details. Never leave required lesson detail fields blank unless the teacher-provided value is intentionally blank and impossible to infer. If objectives are missing, generate KSA-aligned objectives:
+Knowledge: ...
+Skills: ...
+Attitudes: ...
+
+Validation before returning:
+- Learning Competency aligns with Competency Code when a code is found.
+- Learning Objectives align with Content Standard, Performance Standard, and Learning Competency.
+- Content and Performance Standards are internally consistent.
+- Suggestions are concise enough for the existing generator fields.
+- Mark inferred fields in analysis.generatedFields, not in the visible field text.
+
+Return only valid JSON:
+{{
+  "analysis": {{
+    "confidence": "High|Medium|Low",
+    "generatedFields": ["field names inferred by AI"],
+    "teacherReviewItems": ["items the teacher should verify"]
+  }},
+  "fields": {{
+    "lessonTitle": "",
+    "topic": "",
+    "learningArea": "",
+    "grade": "",
+    "term": "",
+    "duration": "",
+    "competency": "",
+    "competencyCode": "",
+    "contentStandard": "",
+    "performanceStandard": "",
+    "objectives": ""
+  }}
+}}
+
+Teacher current inputs:
+{json.dumps(lesson, ensure_ascii=False, indent=2)}
+
+Reference text:
+{reference_text[:30000]}
+
+Local rule-based suggestions:
+{json.dumps(local_draft, ensure_ascii=False, indent=2)}
+""".strip()
+
+
+def image_parts(payload):
+    lesson = payload.get("lesson") or {}
+    files = lesson.get("referenceFiles") or []
+    parts = []
+    for file in files[:5]:
+        data_url = file.get("imageDataUrl") or ""
+        if not data_url.startswith("data:image/") or "," not in data_url:
+            continue
+        header, data = data_url.split(",", 1)
+        mime_type = header.split(";", 1)[0].replace("data:", "") or file.get("type") or "image/png"
+        parts.append({
+            "inline_data": {
+                "mime_type": mime_type,
+                "data": data
+            }
+        })
+    return parts
 
 
 def merge_with_fallback(result, fallback):
@@ -196,7 +290,8 @@ class ILAWRequestHandler(SimpleHTTPRequestHandler):
         self.wfile.write(body)
 
     def do_POST(self):
-        if urlparse(self.path).path != "/api/gemini-lesson":
+        path = urlparse(self.path).path
+        if path not in {"/api/gemini-lesson", "/api/gemini-extract-details"}:
             self.send_error(404, "Not found")
             return
 
@@ -208,10 +303,12 @@ class ILAWRequestHandler(SimpleHTTPRequestHandler):
         try:
             length = int(self.headers.get("Content-Length", "0"))
             payload = json.loads(self.rfile.read(length).decode("utf-8"))
+            prompt = build_extraction_prompt(payload) if path == "/api/gemini-extract-details" else build_prompt(payload)
+            parts = [{"text": prompt}, *image_parts(payload)]
             gemini_payload = {
                 "contents": [{
                     "role": "user",
-                    "parts": [{"text": build_prompt(payload)}]
+                    "parts": parts
                 }],
                 "generationConfig": {
                     "temperature": 0.45,

@@ -141,7 +141,8 @@ const App = {
         type: file.type || "Unknown file type",
         size: file.size,
         addedAt: new Date().toISOString(),
-        extractedText: await this.extractReferenceText(file)
+        extractedText: await this.extractReferenceText(file),
+        imageDataUrl: await this.extractImageDataUrl(file)
       })));
 
     const newUploads = uploaded.filter((file) => !existingKeys.has(`${file.name}-${file.size}`));
@@ -150,11 +151,15 @@ const App = {
     this.referenceUpload.value = "";
     this.renderReferenceFiles();
     this.handleInput();
-    this.setStatus(`${newUploads.length || files.length} reference material${(newUploads.length || files.length) > 1 ? "s" : ""} added`);
+    this.setStatus(`${newUploads.length || files.length} reference material${(newUploads.length || files.length) > 1 ? "s" : ""} added. Analyzing lesson details...`);
+    await this.analyzeUploadedLessonDetails();
   },
 
   extractReferenceText(file) {
     const canReadText = /text|plain|csv|markdown/i.test(file.type) || /\.(txt|md|csv)$/i.test(file.name);
+    if (/\.xlsx?$/i.test(file.name) || /spreadsheetml\.sheet/i.test(file.type)) {
+      return this.extractSpreadsheetText(file);
+    }
     if (/\.pdf$/i.test(file.name) || /pdf/i.test(file.type)) {
       return this.extractPdfText(file);
     }
@@ -168,6 +173,34 @@ const App = {
       reader.onload = () => resolve(String(reader.result || "").slice(0, 50000));
       reader.onerror = () => resolve("");
       reader.readAsText(file);
+    });
+  },
+
+  async extractSpreadsheetText(file) {
+    if (!window.XLSX) return this.extractLooseText(file);
+
+    try {
+      const buffer = await file.arrayBuffer();
+      const workbook = window.XLSX.read(buffer, { type: "array" });
+      const sheets = workbook.SheetNames.map((name) => {
+        const rows = window.XLSX.utils.sheet_to_csv(workbook.Sheets[name]);
+        return `Sheet: ${name}\n${rows}`;
+      });
+      return sheets.join("\n\n").slice(0, 50000);
+    } catch (error) {
+      console.warn("Unable to extract spreadsheet text", error);
+      return this.extractLooseText(file);
+    }
+  },
+
+  extractImageDataUrl(file) {
+    if (!/^image\//i.test(file.type || "")) return Promise.resolve("");
+
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result || ""));
+      reader.onerror = () => resolve("");
+      reader.readAsDataURL(file);
     });
   },
 
@@ -251,7 +284,8 @@ const App = {
       this.referenceFiles = [...this.referenceFiles, ...usable];
       this.renderReferenceFiles();
       this.handleInput();
-      this.setStatus(`${usable.length} online reference${usable.length === 1 ? "" : "s"} fetched and added`);
+      this.setStatus(`${usable.length} online reference${usable.length === 1 ? "" : "s"} fetched and added. Analyzing lesson details...`);
+      await this.analyzeUploadedLessonDetails();
     } finally {
       this.fetchOnlineReferencesBtn.disabled = false;
     }
@@ -459,6 +493,54 @@ const App = {
     }
   },
 
+  async analyzeUploadedLessonDetails() {
+    if (!this.referenceFiles.length) return;
+
+    const data = this.getFormData();
+    const localDraft = typeof LessonBuilder !== "undefined" ? LessonBuilder.build(data) : { fields: {}, analysis: {} };
+    const localSuggestions = this.pickLessonDetailFields(localDraft.fields);
+    this.applySuggestedFields(localSuggestions);
+    this.smartDraft = localDraft.analysis;
+    this.saveDraft();
+    this.renderPreview();
+
+    if (typeof GeminiLessonClient === "undefined") {
+      this.setStatus("Lesson details suggested from uploaded materials. Review or edit before generating.");
+      return;
+    }
+
+    try {
+      const refreshedData = this.getFormData();
+      const built = await GeminiLessonClient.extractLessonDetails(refreshedData, localDraft);
+      this.smartDraft = built.analysis;
+      this.applySuggestedFields(this.pickLessonDetailFields(built.fields));
+      this.saveDraft();
+      this.renderPreview();
+      const confidence = built.analysis?.confidence ? ` (${built.analysis.confidence} confidence)` : "";
+      this.setStatus(`Lesson details extracted for teacher review${confidence}.`);
+    } catch (error) {
+      console.warn("Unable to extract lesson details with Gemini", error);
+      this.setStatus("Lesson details suggested locally. Gemini extraction was unavailable.");
+    }
+  },
+
+  pickLessonDetailFields(fields = {}) {
+    const allowed = ["lessonTitle", "topic", "competency", "competencyCode", "contentStandard", "performanceStandard", "objectives", "learningArea", "grade", "term", "duration"];
+    return allowed.reduce((picked, key) => {
+      if (fields[key]) picked[key] = fields[key];
+      return picked;
+    }, {});
+  },
+
+  applySuggestedFields(fields = {}) {
+    Object.entries(fields).forEach(([key, value]) => {
+      const element = document.getElementById(key);
+      if (element && value && !String(element.value || "").trim()) {
+        element.value = value;
+      }
+    });
+  },
+
   async exportPowerPoint() {
     if (typeof PresentationManager === "undefined") {
       this.setStatus("PowerPoint generator is not available.");
@@ -489,9 +571,10 @@ const App = {
   },
 
   applyGeneratedFields(fields = {}) {
+    const manualCoreFields = new Set(["lessonTitle", "topic", "competency", "competencyCode", "contentStandard", "performanceStandard", "objectives", "learningArea", "grade", "term", "duration"]);
     Object.entries(fields).forEach(([key, value]) => {
       const element = document.getElementById(key);
-      if (element && value) {
+      if (element && value && !(manualCoreFields.has(key) && String(element.value || "").trim())) {
         element.value = value;
       }
     });
