@@ -44,8 +44,27 @@ def build_prompt(payload):
     sessions = 4 if lesson.get("templateMode") == "4-day" else 5
 
     return f"""
-You are helping Urbiztondo National High School teachers create an editable ILAW lesson plan.
-Generate a {sessions}-session lesson plan from the teacher inputs. Follow DepEd-style classroom language, keep activities practical for Philippine secondary classrooms, and preserve any teacher-provided facts.
+You are an expert MATATAG Curriculum planner and ILAW Lesson Plan specialist helping Urbiztondo National High School teachers create an editable ILAW lesson plan.
+
+Populate the existing ILAW Lesson Plan template only. Do not modify the template structure, page orientation, margins, font size, spacing, tables, labels, or formatting. The document is already configured for A4 Landscape printing, so fill only the designated fields.
+
+Generate a concise {sessions}-session lesson plan from the teacher inputs. Follow DepEd-style classroom language, keep activities practical for Philippine secondary classrooms, and preserve any teacher-provided facts.
+
+Content requirements:
+- Target approximately 800-1200 words total.
+- Generate only enough content to fit within 2-3 A4 Landscape pages.
+- Keep explanations concise, teacher-friendly, and classroom-ready.
+- Use bullets or compact lines where possible.
+- Avoid unnecessary repetition and verbose descriptions.
+- If content may exceed the page limit, summarize activities instead of expanding them.
+- Prioritize essential instructional information only.
+
+ILAW requirements:
+- Generate all four components: Intentions, Learning Experiences, Assessment, and Ways Forward.
+- Align every part with the provided MATATAG competency.
+- Integrate Knowledge, Skills, and Attitudes (KSA) in the learning objectives.
+- Use only activities explicitly stated in the Lesson Exemplar or source material when such material is provided. If no source activity is provided, use concise teacher-reviewed placeholder activities aligned to the competency.
+- Ensure alignment among objectives, activities, assessment, remediation/intervention, enrichment, and reflection.
 
 Return only valid JSON. Do not wrap it in markdown.
 
@@ -102,6 +121,14 @@ Required JSON shape:
 }}
 
 For every session field, include concise but complete lesson-plan text. Leave day5-related fields empty when the template is 4-day. The aiUse field must mention Gemini AI assistance and teacher review/contextualization.
+
+Final validation before returning JSON:
+- Existing template structure remains unchanged.
+- Content is concise enough for 2-3 A4 Landscape pages.
+- Intentions, Learning Experiences, Assessment, and Ways Forward are present.
+- Objectives include Knowledge, Skills, and Attitudes.
+- Activities and assessments are aligned with the MATATAG competency and source material.
+- The lesson plan is ready for immediate classroom use.
 
 Teacher inputs:
 {json.dumps(lesson, ensure_ascii=False, indent=2)}
