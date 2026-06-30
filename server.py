@@ -24,6 +24,33 @@ def gemini_model():
     return os.environ.get("GEMINI_MODEL", "gemini-2.0-flash")
 
 
+def fallback_ai_providers():
+    return [
+        {
+            "name": "Groq",
+            "api_key": os.environ.get("GROQ_API_KEY"),
+            "model": os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile"),
+            "url": "https://api.groq.com/openai/v1/chat/completions",
+        },
+        {
+            "name": "Cerebras",
+            "api_key": os.environ.get("CEREBRAS_API_KEY"),
+            "model": os.environ.get("CEREBRAS_MODEL", "llama-4-scout-17b-16e-instruct"),
+            "url": "https://api.cerebras.ai/v1/chat/completions",
+        },
+        {
+            "name": "OpenRouter",
+            "api_key": os.environ.get("OPENROUTER_API_KEY"),
+            "model": os.environ.get("OPENROUTER_MODEL", "meta-llama/llama-3.3-70b-instruct"),
+            "url": "https://openrouter.ai/api/v1/chat/completions",
+            "extra_headers": {
+                "HTTP-Referer": os.environ.get("OPENROUTER_SITE_URL", "http://localhost:8000"),
+                "X-Title": os.environ.get("OPENROUTER_APP_NAME", "ILAW Teacher Studio"),
+            },
+        },
+    ]
+
+
 def extract_json(text):
     cleaned = str(text or "").strip()
     if cleaned.startswith("```"):
@@ -265,7 +292,7 @@ def image_parts(payload):
     return parts
 
 
-def merge_with_fallback(result, fallback):
+def merge_with_fallback(result, fallback, provider_name="Gemini"):
     result = result or {}
     fallback = fallback or {}
     fields = {}
@@ -275,9 +302,99 @@ def merge_with_fallback(result, fallback):
     analysis = {}
     analysis.update(fallback.get("analysis") or {})
     analysis.update(result.get("analysis") or {})
-    analysis["provider"] = "Gemini"
+    analysis["provider"] = provider_name
 
     return {"analysis": analysis, "fields": fields}
+
+
+def call_gemini(prompt, payload):
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        raise RuntimeError("GEMINI_API_KEY is not configured on the server.")
+
+    parts = [{"text": prompt}, *image_parts(payload)]
+    gemini_payload = {
+        "contents": [{
+            "role": "user",
+            "parts": parts
+        }],
+        "generationConfig": {
+            "temperature": 0.45,
+            "responseMimeType": "application/json"
+        }
+    }
+    request = Request(
+        f"https://generativelanguage.googleapis.com/v1beta/models/{gemini_model()}:generateContent?key={api_key}",
+        data=json.dumps(gemini_payload).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST"
+    )
+
+    with urlopen(request, timeout=45) as response:
+        gemini_response = json.loads(response.read().decode("utf-8"))
+
+    return "\n".join(
+        part.get("text", "")
+        for candidate in gemini_response.get("candidates", [])
+        for part in candidate.get("content", {}).get("parts", [])
+    )
+
+
+def call_openai_compatible(provider, prompt):
+    if not provider.get("api_key"):
+        raise RuntimeError(f"{provider['name']} API key is not configured on the server.")
+
+    chat_payload = {
+        "model": provider["model"],
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0.45,
+        "response_format": {"type": "json_object"},
+    }
+    headers = {
+        "Authorization": f"Bearer {provider['api_key']}",
+        "Content-Type": "application/json",
+        **(provider.get("extra_headers") or {}),
+    }
+    request = Request(
+        provider["url"],
+        data=json.dumps(chat_payload).encode("utf-8"),
+        headers=headers,
+        method="POST"
+    )
+
+    with urlopen(request, timeout=45) as response:
+        chat_response = json.loads(response.read().decode("utf-8"))
+
+    return "\n".join(
+        choice.get("message", {}).get("content", "")
+        for choice in chat_response.get("choices", [])
+    )
+
+
+def generate_ai_text(prompt, payload):
+    errors = []
+
+    if os.environ.get("GEMINI_API_KEY"):
+        try:
+            return "Gemini", call_gemini(prompt, payload)
+        except (HTTPError, URLError, TimeoutError, RuntimeError, ValueError, json.JSONDecodeError) as error:
+            errors.append(f"Gemini: {error}")
+
+    for provider in fallback_ai_providers():
+        if not provider.get("api_key"):
+            continue
+        try:
+            return provider["name"], call_openai_compatible(provider, prompt)
+        except (HTTPError, URLError, TimeoutError, RuntimeError, ValueError, json.JSONDecodeError) as error:
+            errors.append(f"{provider['name']}: {error}")
+
+    configured = ["Gemini" if os.environ.get("GEMINI_API_KEY") else "", *[
+        provider["name"] for provider in fallback_ai_providers() if provider.get("api_key")
+    ]]
+    configured = [name for name in configured if name]
+    if not configured:
+        raise RuntimeError("No AI provider API keys are configured on the server.")
+    raise RuntimeError("; ".join(errors) or "All configured AI providers failed.")
 
 
 class ILAWRequestHandler(SimpleHTTPRequestHandler):
