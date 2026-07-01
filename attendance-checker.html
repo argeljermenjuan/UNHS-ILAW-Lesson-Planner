@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendance Checker - Teacher Toolbox</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="manifest" href="teacher-toolbox.webmanifest">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <img class="brand-logo" src="assets/logo.png" alt="Urbiztondo National High School logo">
+        <div>
+          <h1>Attendance Checker</h1>
+          <p>Teacher Toolbox</p>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a class="btn btn-outline-primary w-100 mb-2" href="teacher-toolbox.html">Teacher Toolbox Home</a>
+        <a class="btn btn-primary w-100 mb-2" href="attendance-checker.html">Attendance Checker</a>
+        <a class="btn btn-outline-info w-100 mb-2" href="tools.html">TOS and Examination</a>
+        <a class="btn btn-outline-secondary w-100 mb-2" href="index.html">Lesson Planner</a>
+      </nav>
+
+      <div class="sidebar-card">
+        <h6 class="mb-2">Active Account</h6>
+        <div id="attendanceAccountBadge" class="text-muted">Not signed in.</div>
+        <button type="button" class="btn btn-sm btn-outline-danger mt-3" id="attendanceLogoutBtn">Log out</button>
+      </div>
+    </aside>
+
+    <main class="workspace">
+      <header class="workspace-header">
+        <div>
+          <p class="eyebrow">Teacher Toolbox</p>
+          <h2>Attendance Checker</h2>
+        </div>
+        <div class="status-message" id="attendanceStatus">Sign in to manage attendance.</div>
+      </header>
+
+      <section class="panel-card toolbox-login" id="attendanceLoginPanel">
+        <div class="panel-title">
+          <h3>Teacher Login</h3>
+          <p>Use the same local Teacher Toolbox account.</p>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label" for="attendanceLoginName">Username</label>
+            <input id="attendanceLoginName" class="form-control" type="text" autocomplete="username">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="attendanceLoginPassword">Password</label>
+            <input id="attendanceLoginPassword" class="form-control" type="password" autocomplete="current-password">
+          </div>
+          <div class="col-md-4 d-flex align-items-end gap-2">
+            <button type="button" class="btn btn-primary" id="attendanceLoginBtn">Log in</button>
+            <button type="button" class="btn btn-outline-secondary" id="attendanceCreateBtn">Create</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="tool-workspace d-none" id="attendanceApp">
+        <article class="panel-card">
+          <div class="panel-title">
+            <h3>Class Roster by Section</h3>
+            <p>Paste names or upload a CSV/TXT file. Each roster is saved under the section you enter.</p>
+          </div>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label" for="classSection">Section</label>
+              <input id="classSection" class="form-control" type="text" placeholder="Example: Grade 8 - Rizal">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="attendanceDatePage">Attendance Date</label>
+              <input id="attendanceDatePage" class="form-control" type="date">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="attendanceMonth">Monthly Summary</label>
+              <input id="attendanceMonth" class="form-control" type="month">
+            </div>
+            <div class="col-lg-8">
+              <label class="form-label" for="sectionRosterInput">Copy/Paste Learner Names</label>
+              <textarea id="sectionRosterInput" class="form-control" rows="5" placeholder="One learner per line, or comma-separated names"></textarea>
+            </div>
+            <div class="col-lg-4">
+              <label class="form-label" for="sectionRosterFile">Upload Names File</label>
+              <input id="sectionRosterFile" class="form-control" type="file" accept=".txt,.csv,.md">
+              <div class="tool-action-row mt-3">
+                <button type="button" class="btn btn-success" id="saveSectionRosterBtn">Save Section</button>
+                <button type="button" class="btn btn-outline-primary" id="loadSectionRosterBtn">Load Section</button>
+              </div>
+              <div class="form-text mt-2" id="sectionRosterCount">No section loaded.</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel-card">
+          <div class="panel-title">
+            <h3>Manage Learners</h3>
+            <p>Add or remove learners before checking attendance.</p>
+          </div>
+          <div class="row g-3 align-items-end">
+            <div class="col-md-8">
+              <label class="form-label" for="newLearnerName">Add Learner</label>
+              <input id="newLearnerName" class="form-control" type="text">
+            </div>
+            <div class="col-md-4">
+              <button type="button" class="btn btn-primary" id="addLearnerBtn">Add Learner</button>
+            </div>
+          </div>
+          <div id="learnerManagerOutput" class="tool-output muted-output mt-3">Load or save a section first.</div>
+        </article>
+
+        <article class="panel-card">
+          <div class="panel-title">
+            <h3>Daily Attendance</h3>
+            <p>Tap Present or Absent for each learner. Late and Excused are available for more detailed monitoring.</p>
+          </div>
+          <div class="tool-action-row mb-3">
+            <button type="button" class="btn btn-primary" id="buildDailyAttendanceBtn">Build Checklist</button>
+            <button type="button" class="btn btn-success" id="saveDailyAttendanceBtn">Save Attendance</button>
+            <button type="button" class="btn btn-outline-success" id="exportDailyAttendanceBtn">Export CSV</button>
+            <button type="button" class="btn btn-outline-secondary" id="printDailyAttendanceBtn">Print Daily Output</button>
+          </div>
+          <div id="dailyAttendanceOutput" class="tool-output muted-output">Build a checklist to begin.</div>
+        </article>
+
+        <article class="panel-card">
+          <div class="panel-title">
+            <h3>Monthly Attendance Summary</h3>
+            <p>Summarizes present, absent, late, and excused records for the selected section and month.</p>
+          </div>
+          <div class="tool-action-row mb-3">
+            <button type="button" class="btn btn-primary" id="buildMonthlySummaryBtn">Generate Monthly Summary</button>
+            <button type="button" class="btn btn-outline-success" id="exportMonthlySummaryBtn">Export Summary CSV</button>
+            <button type="button" class="btn btn-outline-secondary" id="printMonthlySummaryBtn">Print Summary</button>
+          </div>
+          <div id="monthlySummaryOutput" class="tool-output muted-output">No monthly summary generated.</div>
+        </article>
+      </section>
+
+      <footer class="app-footer">
+        <span>Developed by: Argel Jermen Juan</span>
+        <span>Attendance Checker v1.0</span>
+      </footer>
+    </main>
+  </div>
+
+  <script src="js/attendance.js"></script>
+</body>
+</html>

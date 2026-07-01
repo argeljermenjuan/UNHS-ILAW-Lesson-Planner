@@ -646,6 +646,107 @@ textarea.form-control {
   color: var(--muted);
 }
 
+.toolbox-page-link {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.toolbox-page-link:hover {
+  border-color: rgba(13, 110, 253, 0.35);
+  color: var(--text);
+}
+
+.learner-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.learner-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-soft);
+  padding: 7px 10px;
+  font-size: 0.92rem;
+}
+
+.learner-chip button {
+  border: 0;
+  background: transparent;
+  color: #dc3545;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.attendance-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.attendance-row {
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) minmax(320px, 2fr) minmax(180px, 1fr);
+  gap: 12px;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-soft);
+  padding: 10px;
+}
+
+.attendance-toggle-group {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.attendance-toggle {
+  margin: 0;
+}
+
+.attendance-toggle input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.attendance-toggle span {
+  display: grid;
+  place-items: center;
+  min-height: 38px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--text);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.attendance-toggle.active span {
+  border-color: var(--primary);
+  background: rgba(13, 110, 253, 0.1);
+  color: var(--primary-dark);
+}
+
+.attendance-toggle:has(input[value="Absent"]:checked) span,
+.attendance-toggle.active input[value="Absent"] + span {
+  border-color: #dc3545;
+  background: rgba(220, 53, 69, 0.1);
+  color: #b02a37;
+}
+
+.attendance-print-header {
+  margin-bottom: 12px;
+}
+
+.attendance-print-header h4 {
+  margin-bottom: 4px;
+}
+
 @media (max-width: 1100px) {
   .workspace-grid {
     grid-template-columns: 1fr;
@@ -656,6 +757,10 @@ textarea.form-control {
   }
 
   .toolbox-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .attendance-row {
     grid-template-columns: 1fr;
   }
 }
@@ -702,5 +807,9 @@ textarea.form-control {
 
   .answer-grid {
     columns: 1;
+  }
+
+  .attendance-toggle-group {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

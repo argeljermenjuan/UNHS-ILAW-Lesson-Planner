@@ -1,9 +1,11 @@
 const CACHE_NAME = "ilaw-teacher-toolbox-v1";
 const ASSETS = [
   "./teacher-toolbox.html",
+  "./attendance-checker.html",
   "./teacher-toolbox.webmanifest",
   "./css/style.css",
   "./js/toolbox.js",
+  "./js/attendance.js",
   "./assets/logo.png"
 ];
 

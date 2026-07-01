@@ -23,12 +23,12 @@
       <nav class="sidebar-nav">
         <a class="btn btn-outline-primary w-100 mb-2" href="index.html">Lesson Planner</a>
         <a class="btn btn-outline-info w-100 mb-2" href="tools.html">TOS and Examination Generator</a>
-        <button type="button" class="btn btn-primary w-100 mb-2" data-tool-target="attendance">Attendance Checker</button>
-        <button type="button" class="btn btn-outline-primary w-100 mb-2" data-tool-target="smartcheck">ILAW SmartCheck</button>
-        <button type="button" class="btn btn-outline-primary w-100 mb-2" data-tool-target="class-tools">Class Tools</button>
-        <button type="button" class="btn btn-outline-primary w-100 mb-2" data-tool-target="planning-tools">Planning Tools</button>
-        <button type="button" class="btn btn-outline-secondary w-100 mb-2" data-tool-target="records">Records</button>
-        <button type="button" class="btn btn-outline-dark w-100 mb-2" data-tool-target="settings">Settings</button>
+        <a class="btn btn-primary w-100 mb-2" href="attendance-checker.html">Attendance Checker</a>
+        <a class="btn btn-outline-primary w-100 mb-2" href="teacher-toolbox.html#smartcheck">ILAW SmartCheck</a>
+        <a class="btn btn-outline-primary w-100 mb-2" href="teacher-toolbox.html#class-tools">Class Tools</a>
+        <a class="btn btn-outline-primary w-100 mb-2" href="teacher-toolbox.html#planning-tools">Planning Tools</a>
+        <a class="btn btn-outline-secondary w-100 mb-2" href="teacher-toolbox.html#records">Records</a>
+        <a class="btn btn-outline-dark w-100 mb-2" href="teacher-toolbox.html#settings">Settings</a>
       </nav>
 
       <div class="sidebar-card">
@@ -69,6 +69,43 @@
       </section>
 
       <section class="tool-workspace toolbox-app d-none" id="toolboxApp">
+        <article class="panel-card">
+          <div class="panel-title">
+            <h3>Toolbox Pages</h3>
+            <p>Open each toolbox on its own page so every tool can have focused settings and printable outputs.</p>
+          </div>
+          <div class="tool-link-grid">
+            <a class="tool-link-card panel-card toolbox-page-link" href="attendance-checker.html">
+              <span class="tool-link-icon"><i class="bi bi-calendar-check"></i></span>
+              <span>
+                <h3>Attendance Checker</h3>
+                <p>Class roster, present/absent checklist, monthly summaries, CSV export, and printable attendance reports.</p>
+              </span>
+            </a>
+            <a class="tool-link-card panel-card toolbox-page-link" href="#smartcheck">
+              <span class="tool-link-icon"><i class="bi bi-check2-square"></i></span>
+              <span>
+                <h3>ILAW SmartCheck</h3>
+                <p>Multiple-choice checking, item analysis, answer sheets, and reports.</p>
+              </span>
+            </a>
+            <a class="tool-link-card panel-card toolbox-page-link" href="#class-tools">
+              <span class="tool-link-icon"><i class="bi bi-shuffle"></i></span>
+              <span>
+                <h3>Class Tools</h3>
+                <p>Random picker, group generator, timer, and QR generator.</p>
+              </span>
+            </a>
+            <a class="tool-link-card panel-card toolbox-page-link" href="#settings">
+              <span class="tool-link-icon"><i class="bi bi-gear"></i></span>
+              <span>
+                <h3>Settings</h3>
+                <p>Manage account-level teacher, section, and SmartCheck settings.</p>
+              </span>
+            </a>
+          </div>
+        </article>
+
         <article class="panel-card">
           <div class="panel-title">
             <h3>Shared Class Roster</h3>
