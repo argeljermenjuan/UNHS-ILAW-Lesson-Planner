@@ -458,22 +458,34 @@ const App = {
     buttons.forEach((button) => {
       button.disabled = true;
     });
-    this.setStatus("Generating ILAW lesson draft with Gemini...");
+    this.setStatus("Generating ILAW lesson draft with AI...");
 
     try {
       const localDraft = typeof LessonBuilder !== "undefined" ? LessonBuilder.build(data) : { fields: {}, analysis: {} };
-      const built = typeof GeminiLessonClient !== "undefined"
-        ? await GeminiLessonClient.generateLesson(data, localDraft)
-        : localDraft;
+      let built = localDraft;
+
+      try {
+        built = typeof GeminiLessonClient !== "undefined"
+          ? await GeminiLessonClient.generateLesson(data, localDraft)
+          : localDraft;
+      } catch (serverError) {
+        console.warn("Server AI lesson draft unavailable", serverError);
+        if (typeof PuterLessonClient === "undefined" || !PuterLessonClient.isAvailable()) {
+          throw serverError;
+        }
+        this.setStatus("Server AI unavailable. Trying Puter AI fallback...");
+        built = await PuterLessonClient.generateLesson(data, localDraft);
+      }
 
       this.smartDraft = built.analysis;
       this.applyGeneratedFields(built.fields);
       this.saveDraft();
       this.preview.innerHTML = LessonGenerator.buildLesson(this.getFormData());
       PreviewManager.initialize();
-      this.setStatus(`Smart ILAW lesson draft generated${this.smartDraft?.confidence ? ` (${this.smartDraft.confidence} confidence)` : ""}`);
+      const provider = this.smartDraft?.provider ? ` via ${this.smartDraft.provider}` : "";
+      this.setStatus(`Smart ILAW lesson draft generated${provider}${this.smartDraft?.confidence ? ` (${this.smartDraft.confidence} confidence)` : ""}`);
     } catch (error) {
-      console.error("Unable to generate Gemini lesson draft", error);
+      console.error("Unable to generate AI lesson draft", error);
 
       if (typeof LessonBuilder !== "undefined") {
         const fallback = LessonBuilder.build(data);
@@ -482,7 +494,7 @@ const App = {
         this.saveDraft();
         this.preview.innerHTML = LessonGenerator.buildLesson(this.getFormData());
         PreviewManager.initialize();
-        this.setStatus("Gemini was unavailable. Local Smart Lesson Builder generated the draft.");
+        this.setStatus("AI providers were unavailable. Local Smart Lesson Builder generated the draft.");
       } else {
         this.setStatus("Unable to generate the lesson draft. Check server API key or internet connection.");
       }
@@ -519,8 +531,8 @@ const App = {
       const confidence = built.analysis?.confidence ? ` (${built.analysis.confidence} confidence)` : "";
       this.setStatus(`Lesson details extracted for teacher review${confidence}.`);
     } catch (error) {
-      console.warn("Unable to extract lesson details with Gemini", error);
-      this.setStatus("Lesson details suggested locally. Gemini extraction was unavailable.");
+      console.warn("Unable to extract lesson details with AI", error);
+      this.setStatus("Lesson details suggested locally. AI extraction was unavailable.");
     }
   },
 

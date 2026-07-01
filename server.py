@@ -60,7 +60,7 @@ def extract_json(text):
     start = cleaned.find("{")
     end = cleaned.rfind("}")
     if start == -1 or end == -1 or end <= start:
-        raise ValueError("Gemini did not return JSON.")
+        raise ValueError("AI provider did not return JSON.")
     return json.loads(cleaned[start:end + 1])
 
 
@@ -181,7 +181,7 @@ For every session field, include concise but complete lesson-plan text. Write ob
 Knowledge: ...
 Skills: ...
 Attitudes: ...
-Leave day5-related fields empty when the template is 4-day. The aiUse field must mention Gemini AI assistance and teacher review/contextualization in the selected language.
+Leave day5-related fields empty when the template is 4-day. The aiUse field must mention AI assistance and teacher review/contextualization in the selected language.
 
 Final validation before returning JSON:
 - Existing template structure remains unchanged.
@@ -412,42 +412,15 @@ class ILAWRequestHandler(SimpleHTTPRequestHandler):
             self.send_error(404, "Not found")
             return
 
-        api_key = os.environ.get("GEMINI_API_KEY")
-        if not api_key:
-            self.send_error(503, "GEMINI_API_KEY is not configured on the server.")
-            return
-
         try:
             length = int(self.headers.get("Content-Length", "0"))
             payload = json.loads(self.rfile.read(length).decode("utf-8"))
             prompt = build_extraction_prompt(payload) if path == "/api/gemini-extract-details" else build_prompt(payload)
-            parts = [{"text": prompt}, *image_parts(payload)]
-            gemini_payload = {
-                "contents": [{
-                    "role": "user",
-                    "parts": parts
-                }],
-                "generationConfig": {
-                    "temperature": 0.45,
-                    "responseMimeType": "application/json"
-                }
-            }
-            request = Request(
-                f"https://generativelanguage.googleapis.com/v1beta/models/{gemini_model()}:generateContent?key={api_key}",
-                data=json.dumps(gemini_payload).encode("utf-8"),
-                headers={"Content-Type": "application/json"},
-                method="POST"
-            )
-
-            with urlopen(request, timeout=45) as response:
-                gemini_response = json.loads(response.read().decode("utf-8"))
-
-            text = "\n".join(
-                part.get("text", "")
-                for candidate in gemini_response.get("candidates", [])
-                for part in candidate.get("content", {}).get("parts", [])
-            )
-            body = json.dumps(merge_with_fallback(extract_json(text), payload.get("localDraft"))).encode("utf-8")
+            provider_name, text = generate_ai_text(prompt, payload)
+            body = json.dumps(
+                merge_with_fallback(extract_json(text), payload.get("localDraft"), provider_name),
+                ensure_ascii=False
+            ).encode("utf-8")
 
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
@@ -457,8 +430,10 @@ class ILAWRequestHandler(SimpleHTTPRequestHandler):
         except HTTPError as error:
             details = error.read().decode("utf-8", errors="replace")
             self.send_json_error(error.code, details or str(error))
+        except RuntimeError as error:
+            self.send_json_error(503, str(error))
         except (URLError, TimeoutError, ValueError, json.JSONDecodeError) as error:
-            self.send_json_error(502, f"Unable to generate Gemini lesson: {error}")
+            self.send_json_error(502, f"Unable to generate AI lesson: {error}")
 
 
 if __name__ == "__main__":
@@ -468,4 +443,6 @@ if __name__ == "__main__":
     print("ILAW Teacher Studio")
     print(f"Open: http://localhost:{port}")
     print("Gemini:", "configured" if os.environ.get("GEMINI_API_KEY") else "not configured")
+    for provider in fallback_ai_providers():
+        print(f"{provider['name']}:", "configured" if provider.get("api_key") else "not configured")
     server.serve_forever()
