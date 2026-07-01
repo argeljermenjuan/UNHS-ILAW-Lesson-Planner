@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teacher Toolbox - ILAW Teacher Studio</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="manifest" href="teacher-toolbox.webmanifest">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <img class="brand-logo" src="assets/logo.png" alt="Urbiztondo National High School logo">
+        <div>
+          <h1>Teacher Toolbox</h1>
+          <p>Centralized classroom tools</p>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a class="btn btn-outline-primary w-100 mb-2" href="index.html">Lesson Planner</a>
+        <a class="btn btn-outline-info w-100 mb-2" href="tools.html">TOS and Examination Generator</a>
+        <button type="button" class="btn btn-primary w-100 mb-2" data-tool-target="attendance">Attendance Checker</button>
+        <button type="button" class="btn btn-outline-primary w-100 mb-2" data-tool-target="smartcheck">ILAW SmartCheck</button>
+        <button type="button" class="btn btn-outline-primary w-100 mb-2" data-tool-target="class-tools">Class Tools</button>
+        <button type="button" class="btn btn-outline-primary w-100 mb-2" data-tool-target="planning-tools">Planning Tools</button>
+        <button type="button" class="btn btn-outline-secondary w-100 mb-2" data-tool-target="records">Records</button>
+        <button type="button" class="btn btn-outline-dark w-100 mb-2" data-tool-target="settings">Settings</button>
+      </nav>
+
+      <div class="sidebar-card">
+        <h6 class="mb-2">Active Account</h6>
+        <div id="accountBadge" class="text-muted">Not signed in.</div>
+        <button type="button" class="btn btn-sm btn-outline-danger mt-3" id="logoutBtn">Log out</button>
+      </div>
+    </aside>
+
+    <main class="workspace">
+      <header class="workspace-header">
+        <div>
+          <p class="eyebrow">Teacher Productivity</p>
+          <h2>Teacher Toolbox</h2>
+        </div>
+        <div class="status-message" id="toolboxStatus">Sign in to open your toolbox.</div>
+      </header>
+
+      <section class="panel-card toolbox-login" id="loginPanel">
+        <div class="panel-title">
+          <h3>Teacher Login</h3>
+          <p>Use a local teacher account to keep rosters, settings, and generated records separate on this device.</p>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label" for="loginName">Username</label>
+            <input id="loginName" class="form-control" type="text" autocomplete="username">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="loginPassword">Password</label>
+            <input id="loginPassword" class="form-control" type="password" autocomplete="current-password">
+          </div>
+          <div class="col-md-4 d-flex align-items-end gap-2">
+            <button type="button" class="btn btn-primary" id="loginBtn">Log in</button>
+            <button type="button" class="btn btn-outline-secondary" id="createAccountBtn">Create</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="tool-workspace toolbox-app d-none" id="toolboxApp">
+        <article class="panel-card">
+          <div class="panel-title">
+            <h3>Shared Class Roster</h3>
+            <p>Paste names or upload a CSV/TXT file. Toolbox generators read from this roster when needed.</p>
+          </div>
+          <div class="row g-3">
+            <div class="col-lg-8">
+              <label class="form-label" for="rosterInput">Learner Names</label>
+              <textarea id="rosterInput" class="form-control" rows="5" placeholder="One learner per line, or comma-separated names"></textarea>
+            </div>
+            <div class="col-lg-4">
+              <label class="form-label" for="rosterFile">Upload Names File</label>
+              <input id="rosterFile" class="form-control" type="file" accept=".txt,.csv,.md">
+              <div class="d-flex gap-2 mt-3">
+                <button type="button" class="btn btn-success" id="saveRosterBtn">Save Roster</button>
+                <button type="button" class="btn btn-outline-secondary" id="clearRosterBtn">Clear</button>
+              </div>
+              <div class="form-text mt-2" id="rosterCount">0 learners loaded.</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel-card toolbox-section" id="attendance">
+          <div class="panel-title">
+            <h3>Attendance Checker</h3>
+            <p>Mark attendance from the shared roster and export or print the record.</p>
+          </div>
+          <div class="row g-3 mb-3">
+            <div class="col-md-4">
+              <label class="form-label" for="attendanceDate">Date</label>
+              <input id="attendanceDate" class="form-control" type="date">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="attendanceSection">Section</label>
+              <input id="attendanceSection" class="form-control" type="text">
+            </div>
+            <div class="col-md-4 d-flex align-items-end gap-2">
+              <button type="button" class="btn btn-primary" id="buildAttendanceBtn">Build List</button>
+              <button type="button" class="btn btn-outline-success" id="exportAttendanceBtn">Export CSV</button>
+            </div>
+          </div>
+          <div id="attendanceOutput" class="tool-output muted-output">Save a roster, then build the attendance list.</div>
+        </article>
+
+        <article class="panel-card toolbox-section" id="smartcheck">
+          <div class="panel-title">
+            <h3>ILAW SmartCheck</h3>
+            <p>Free assessment checker for 20 to 50 multiple-choice items with scoring, item analysis, Excel-ready export, and printable reports.</p>
+          </div>
+          <div class="row g-3">
+            <div class="col-md-3">
+              <label class="form-label" for="smartItemCount">Items</label>
+              <input id="smartItemCount" class="form-control" type="number" min="20" max="50" value="20">
+            </div>
+            <div class="col-md-9">
+              <label class="form-label" for="answerKeyInput">Answer Key</label>
+              <input id="answerKeyInput" class="form-control" type="text" placeholder="Example: A B C D A B C D ...">
+            </div>
+            <div class="col-12">
+              <label class="form-label" for="studentAnswersInput">Student Answers</label>
+              <textarea id="studentAnswersInput" class="form-control" rows="6" placeholder="Format: Learner Name, A B C D A..."></textarea>
+            </div>
+          </div>
+          <div class="tool-action-row mt-3">
+            <button type="button" class="btn btn-primary" id="scoreSmartCheckBtn">Check Answers</button>
+            <button type="button" class="btn btn-outline-primary" id="printAnswerSheetBtn">Printable Answer Sheet</button>
+            <button type="button" class="btn btn-outline-success" id="exportSmartCheckBtn">Export Excel CSV</button>
+            <button type="button" class="btn btn-outline-secondary" id="printSmartReportBtn">Printable Report</button>
+            <button type="button" class="btn btn-outline-primary" id="installAndroidBtn">Install Android App</button>
+            <button type="button" class="btn btn-outline-dark" id="downloadAndroidKitBtn">Download Android Sync Kit</button>
+          </div>
+          <div class="row g-3 mt-1">
+            <div class="col-lg-6">
+              <div id="smartCheckOutput" class="tool-output muted-output">Enter answer key and learner answers to score.</div>
+            </div>
+            <div class="col-lg-6">
+              <div id="answerSheetOutput" class="tool-output muted-output">Printable answer sheet will appear here.</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel-card toolbox-section" id="class-tools">
+          <div class="panel-title">
+            <h3>Class Tools</h3>
+            <p>Random Name Picker, Group Generator, Classroom Timer, and QR Code Generator aligned with attendance.</p>
+          </div>
+          <div class="toolbox-grid">
+            <div class="tool-mini">
+              <h4>Random Name Picker</h4>
+              <button type="button" class="btn btn-primary" id="pickNameBtn">Pick</button>
+              <div id="pickerOutput" class="tool-output muted-output mt-2">No name picked.</div>
+            </div>
+            <div class="tool-mini">
+              <h4>Group Generator</h4>
+              <label class="form-label" for="groupSize">Learners per Group</label>
+              <input id="groupSize" class="form-control" type="number" min="2" value="4">
+              <button type="button" class="btn btn-primary mt-2" id="generateGroupsBtn">Generate</button>
+              <div id="groupsOutput" class="tool-output muted-output mt-2">No groups generated.</div>
+            </div>
+            <div class="tool-mini">
+              <h4>Classroom Timer</h4>
+              <div class="input-group">
+                <input id="timerMinutes" class="form-control" type="number" min="1" value="5">
+                <button type="button" class="btn btn-primary" id="startTimerBtn">Start</button>
+              </div>
+              <div id="timerOutput" class="timer-display">05:00</div>
+            </div>
+            <div class="tool-mini">
+              <h4>QR Code Generator</h4>
+              <input id="qrText" class="form-control" type="text" placeholder="Attendance link or class code">
+              <button type="button" class="btn btn-primary mt-2" id="generateQrBtn">Generate QR</button>
+              <div id="qrOutput" class="qr-output mt-2"></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel-card toolbox-section" id="planning-tools">
+          <div class="panel-title">
+            <h3>Planning Tools</h3>
+            <p>Personal Learning Competency Library, Performance Task Builder, Rubrics Generator, and Item Analysis.</p>
+          </div>
+          <div class="row g-3">
+            <div class="col-lg-6">
+              <label class="form-label" for="competencyLibrary">Personal Learning Competency Library</label>
+              <textarea id="competencyLibrary" class="form-control" rows="5" placeholder="Save frequently used competencies here."></textarea>
+            </div>
+            <div class="col-lg-6">
+              <label class="form-label" for="performanceTaskInput">Performance Task Builder</label>
+              <textarea id="performanceTaskInput" class="form-control" rows="5" placeholder="Competency, product/performance, audience, standards, constraints"></textarea>
+            </div>
+            <div class="col-md-6">
+              <button type="button" class="btn btn-success" id="saveCompetencyBtn">Save Competencies</button>
+              <button type="button" class="btn btn-primary" id="buildTaskBtn">Build Task</button>
+            </div>
+            <div class="col-md-6">
+              <button type="button" class="btn btn-outline-primary" id="buildRubricBtn">Generate Rubric</button>
+              <button type="button" class="btn btn-outline-secondary" id="printPlanningBtn">Print Planning Output</button>
+            </div>
+          </div>
+          <div id="planningOutput" class="tool-output muted-output mt-3">Planning outputs will appear here.</div>
+        </article>
+
+        <article class="panel-card toolbox-section" id="records">
+          <div class="panel-title">
+            <h3>Records and Monitoring</h3>
+            <p>Anecdotal Record, Intervention Monitoring Form, Parent Conference Log, and Learner Observation Notes.</p>
+          </div>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label" for="recordType">Record Type</label>
+              <select id="recordType" class="form-select">
+                <option>Anecdotal Record</option>
+                <option>Intervention Monitoring Form</option>
+                <option>Parent Conference Log</option>
+                <option>Learner Observation Notes</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="recordLearner">Learner</label>
+              <input id="recordLearner" class="form-control" type="text">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="recordDate">Date</label>
+              <input id="recordDate" class="form-control" type="date">
+            </div>
+            <div class="col-12">
+              <label class="form-label" for="recordNotes">Notes / Action Taken</label>
+              <textarea id="recordNotes" class="form-control" rows="4"></textarea>
+            </div>
+          </div>
+          <div class="tool-action-row mt-3">
+            <button type="button" class="btn btn-primary" id="saveRecordBtn">Save Record</button>
+            <button type="button" class="btn btn-outline-success" id="exportRecordsBtn">Export Records</button>
+          </div>
+          <div id="recordsOutput" class="tool-output muted-output mt-3">No records yet.</div>
+        </article>
+
+        <article class="panel-card toolbox-section" id="settings">
+          <div class="panel-title">
+            <h3>Teacher Toolbox Settings</h3>
+            <p>Settings are saved per local teacher account.</p>
+          </div>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label" for="settingTeacher">Teacher Name</label>
+              <input id="settingTeacher" class="form-control" type="text">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="settingSchool">School</label>
+              <input id="settingSchool" class="form-control" type="text" value="Urbiztondo National High School">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="settingDefaultSection">Default Section</label>
+              <input id="settingDefaultSection" class="form-control" type="text">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="settingSmartCheckSync">SmartCheck Sync Code</label>
+              <input id="settingSmartCheckSync" class="form-control" type="text" placeholder="Example: ILAW-SECTION-2026">
+            </div>
+            <div class="col-md-6 d-flex align-items-end">
+              <button type="button" class="btn btn-success" id="saveSettingsBtn">Save Settings</button>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <footer class="app-footer">
+        <span>Developed by: Argel Jermen Juan</span>
+        <span>Teacher Toolbox v1.0</span>
+      </footer>
+    </main>
+  </div>
+
+  <script src="js/toolbox.js"></script>
+</body>
+</html>
