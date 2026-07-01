@@ -5,6 +5,29 @@ const PuterLessonClient = {
     return Boolean(window.puter?.ai?.chat);
   },
 
+  isAuthError(error) {
+    const text = [
+      error?.error,
+      error?.code,
+      error?.msg,
+      error?.message,
+      String(error || "")
+    ].filter(Boolean).join(" ").toLowerCase();
+
+    return /auth|login|sign.?in|unauthori[sz]ed|permission|forbidden/.test(text);
+  },
+
+  async ensureSignedIn() {
+    if (!window.puter?.auth?.isSignedIn || !window.puter?.auth?.signIn) return;
+
+    try {
+      if (await window.puter.auth.isSignedIn()) return;
+      await window.puter.auth.signIn({ attempt_temp_user_creation: true });
+    } catch (error) {
+      throw new Error(`Puter sign-in failed: ${error?.msg || error?.message || String(error)}`);
+    }
+  },
+
   buildPrompt(payload = {}) {
     const lesson = payload.lesson || {};
     const localDraft = payload.localDraft || {};
@@ -127,10 +150,23 @@ ${JSON.stringify(localDraft, null, 2)}
     }
 
     const payload = GeminiLessonClient.buildPayload(data, localDraft);
-    const response = await window.puter.ai.chat(this.buildPrompt(payload), {
-      model: this.model
-    });
-    const text = typeof response === "string" ? response : response?.message?.content || response?.text || String(response || "");
+    await this.ensureSignedIn();
+
+    let response;
+    try {
+      response = await window.puter.ai.chat(this.buildPrompt(payload), {
+        model: this.model
+      });
+    } catch (error) {
+      if (this.isAuthError(error)) {
+        throw new Error(`Puter AI authorization failed: ${error?.msg || error?.message || String(error)}`);
+      }
+      throw error;
+    }
+
+    const text = typeof response === "string"
+      ? response
+      : response?.message?.content || response?.text || String(response || "");
 
     return this.mergeWithFallback(this.parseJson(text), localDraft);
   }
