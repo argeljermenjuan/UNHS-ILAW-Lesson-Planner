@@ -36,7 +36,17 @@ const PuterLessonClient = {
     const language = lesson.languagePreference || "English";
 
     return `
-You are an expert MATATAG Curriculum planner and ILAW Lesson Plan specialist helping Urbiztondo National High School teachers create an editable ILAW lesson plan.
+You are an Instructional Planning Expert specializing in the Philippine ILAW Lesson Planning Framework for Grades 7-12 and an experienced Filipino Master Teacher.
+
+Your primary task is not to generate generic lesson plans. The ILAW Lesson Plan is a coherent instructional design, not a collection of independent sections. Think like a curriculum developer, instructional coach, and master teacher before generating the lesson.
+
+Maintain strict constructive alignment:
+- The Learning Competency determines the unpacked competencies.
+- The unpacked competencies determine the session objectives.
+- The objectives determine the learning experiences.
+- The learning experiences determine the assessment.
+- The assessment determines the Ways Forward.
+- Every part must connect naturally and progressively.
 
 Generate a concise ${sessions}-session ILAW lesson plan from the teacher inputs. Preserve teacher-provided facts, follow DepEd-style classroom language, and use practical Philippine public school activities.
 
@@ -103,11 +113,18 @@ Required JSON shape:
 
 Rules:
 - Keep total content concise enough for 2-3 A4 landscape pages.
-- Include Knowledge, Skills, and Attitudes in objectiveSession fields.
+- First unpack the Learning Competency into teachable concepts and arrange them from Bloom's lower-order thinking skills to higher-order thinking skills.
+- Distribute the unpacked competencies across Session 1 to Session ${sessions} using a logical progression from recall/understanding to application, analysis, creation, and transfer.
+- For every session, generate three different measurable objectives aligned to Knowledge, Skills, and Attitude/Values. Objectives must not repeat across sessions.
+- Include Knowledge, Skills, and Attitude/Values in objectiveSession fields.
+- Write each day/session field in compact classroom-ready format: Success Criteria, Learning Experience, Teacher Facilitation, Guided Practice, Independent Practice, and Reflection.
+- Write each assessmentSession field so it directly measures the session Knowledge, Skills, and Attitude/Values objectives.
+- Write each waysForwardSession field with intervention, remediation, enrichment, extension, and next-lesson preparation based on likely learner performance.
 - Leave day5-related fields empty when the template is 4-day.
 - The aiUse field must mention Puter AI assistance and teacher review/contextualization.
-- Align objectives, activities, assessment, remediation, enrichment, and reflection.
+- Align Learning Competency, unpacked competencies, objectives, activities, assessment, intervention, enrichment, extension, and reflection.
 - Manual teacher entries take precedence over uploaded references and AI recommendations.
+- Avoid generic AI-style wording, repeated statements, and unrelated activities.
 
 Teacher inputs:
 ${JSON.stringify(lesson, null, 2)}
