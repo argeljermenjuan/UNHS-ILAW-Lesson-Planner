@@ -1,0 +1,24 @@
+{
+  "name": "ILAW Teacher Toolbox",
+  "short_name": "ILAW Toolbox",
+  "description": "Centralized teacher tools for attendance, SmartCheck, planning, records, and classroom utilities.",
+  "start_url": "teacher-toolbox.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f8fc",
+  "theme_color": "#0d6efd",
+  "icons": [
+    {
+      "src": "assets/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

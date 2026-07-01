@@ -1,0 +1,71 @@
+/* =====================================================
+   VARIABLES
+===================================================== */
+
+:root{
+
+/* COLORS */
+
+--primary:#0D6EFD;
+
+--primary-dark:#0B5ED7;
+
+--sidebar:#1E3A5F;
+
+--background:#F5F7FB;
+
+--card:#FFFFFF;
+
+--border:#E5E7EB;
+
+--success:#198754;
+
+--warning:#FFC107;
+
+--danger:#DC3545;
+
+--text:#212529;
+
+--text-light:#6C757D;
+
+/* TYPOGRAPHY */
+
+--font-family:"Segoe UI",Arial,sans-serif;
+
+--font-size-xs:.75rem;
+
+--font-size-sm:.875rem;
+
+--font-size-md:1rem;
+
+--font-size-lg:1.125rem;
+
+--font-size-xl:1.5rem;
+
+/* SPACING */
+
+--space-1:4px;
+
+--space-2:8px;
+
+--space-3:12px;
+
+--space-4:16px;
+
+--space-5:20px;
+
+--space-6:24px;
+
+/* BORDER */
+
+--radius:12px;
+
+/* SHADOW */
+
+--shadow:0 6px 20px rgba(0,0,0,.08);
+
+/* TRANSITION */
+
+--transition:.25s ease;
+
+}
