@@ -117,10 +117,12 @@ Rules:
 - Distribute the unpacked competencies across Session 1 to Session ${sessions} using a logical progression from recall/understanding to application, analysis, creation, and transfer.
 - For every session, generate three different measurable objectives aligned to Knowledge, Skills, and Attitude/Values. Objectives must not repeat across sessions.
 - Include Knowledge, Skills, and Attitude/Values in objectiveSession fields.
-- Write each day/session field in compact classroom-ready format: Success Criteria, Learning Experience, Teacher Facilitation, Guided Practice, Independent Practice, and Reflection.
-- Treat each day/session field as the FLOW section for that session. Make it exactly four concise bullet points, one complete sentence each, covering the lesson sequence from introduction to assessment.
-- In Learning Experience, generate short classroom-ready bullets in this sequence: Engagement, Exploration, Discussion, Application, Generalization, Assessment, Reflection.
-- Align each Learning Experience bullet directly with the session Knowledge, Skills, and Attitude/Values objectives.
+- Treat each day/session field as the FLOW section for that session.
+- Output exactly four bullet points only, with one complete sentence per bullet.
+- Summarize the lesson sequence from introduction to assessment in this order: opening and prior knowledge, guided exploration or modeling, practice and application, and quick assessment with feedback.
+- Keep each sentence concise, teacher-friendly, classroom-ready, and approximately 12-20 words long.
+- Do not include headings, numbering, explanations, or extra text beyond the four bullets.
+- Align each bullet directly with the session Knowledge, Skills, and Attitude/Values objectives.
 - Use clear action verbs, learner-centered tasks, 21st-century skills, HOTS, and achievable class-period activities; avoid repetition and lengthy descriptions.
 - Write each assessmentSession field so it directly measures the session Knowledge, Skills, and Attitude/Values objectives.
 - Write each waysForwardSession field with intervention, remediation, enrichment, extension, and next-lesson preparation based on likely learner performance.

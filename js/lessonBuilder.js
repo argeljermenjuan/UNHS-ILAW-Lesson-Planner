@@ -66,11 +66,11 @@ const LessonBuilder = {
           "Connect the lesson to learners' experiences.",
           analysis.prerequisiteKnowledge.join("; ")
         ].filter(Boolean).join("\n"),
-        day1: sessionText(analysis.sessionPlan[0]),
-        day2: sessionText(analysis.sessionPlan[1]),
-        day3: sessionText(analysis.sessionPlan[2]),
-        day4: sessionText(analysis.sessionPlan[3]),
-        day5: sessionText(analysis.sessionPlan[4]),
+        day1: this.formatFlowSection(analysis.sessionPlan[0], 1),
+        day2: this.formatFlowSection(analysis.sessionPlan[1], 2),
+        day3: this.formatFlowSection(analysis.sessionPlan[2], 3),
+        day4: this.formatFlowSection(analysis.sessionPlan[3], 4),
+        day5: this.formatFlowSection(analysis.sessionPlan[4], 5),
         resources: analysis.resources.join("\n"),
         references: analysis.references.join("\n"),
         assessment: this.formatAssessment(analysis.assessment),
@@ -96,6 +96,16 @@ const LessonBuilder = {
       `Summative: ${assessment.summative}`,
       `Rubric Criteria: ${assessment.rubric.join(", ")}`
     ].join("\n");
+  },
+
+  formatFlowSection(session, sessionNumber) {
+    const opening = `The teacher activates prior knowledge and introduces the objective for ${session.focus[0] || "the lesson"}.`;
+    const exploration = `Learners explore the concept through guided examples, teacher modeling, and collaborative discussion.`;
+    const practice = `Students practice the skill with structured tasks, feedback, and opportunities for pair or group support.`;
+    const assessment = `The teacher checks understanding through a short assessment, clarifies errors, and gathers evidence for next steps.`;
+    return [opening, exploration, practice, assessment]
+      .map((item) => `- ${item}`)
+      .join("\n");
   },
 
   formatSessionObjectives(session) {
