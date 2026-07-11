@@ -8,17 +8,37 @@ const LessonGenerator = {
       .replace(/'/g, "&#039;");
   },
 
+  normalizeSentence(text = "") {
+    const trimmed = String(text ?? "").trim().replace(/\s+/g, " ");
+    if (!trimmed) return "";
+    return /[.!?]$/.test(trimmed) ? trimmed : `${trimmed}.`;
+  },
+
+  splitSentences(text = "") {
+    return String(text ?? "")
+      .replace(/\r\n/g, "\n")
+      .replace(/\n+/g, " ")
+      .split(/(?<=[.!?])\s+/)
+      .map((chunk) => this.normalizeSentence(chunk))
+      .filter(Boolean);
+  },
+
+  renderBulletList(items = []) {
+    const safeItems = items
+      .map((item) => this.normalizeSentence(item))
+      .filter(Boolean);
+
+    if (!safeItems.length) return "";
+
+    const content = safeItems.map((item) => `<li>${this.escape(item)}</li>`).join("");
+    return `<ul class="ksa-bullet-list">${content}</ul>`;
+  },
+
   formatText(value, fallback = "") {
     const raw = String(value ?? fallback ?? "");
-    const lines = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-    const bulletLines = lines.filter((line) => /^[-*•]\s+/.test(line));
-
-    if (bulletLines.length && bulletLines.length === lines.length) {
-      const items = bulletLines.map((line) => {
-        const content = line.replace(/^[-*•]\s+/, "");
-        return `<li>${this.escape(content)}</li>`;
-      }).join("");
-      return `<ul class="ksa-bullet-list">${items}</ul>`;
+    const sentences = this.splitSentences(raw);
+    if (sentences.length) {
+      return this.renderBulletList(sentences);
     }
 
     const text = this.escape(raw);
@@ -70,9 +90,10 @@ const LessonGenerator = {
     const items = source.map((line) => {
       const [label, ...rest] = line.split(/:\s*/);
       if (label && rest.length) {
-        return `<li><strong>${this.escape(label.trim())}:</strong> ${this.escape(rest.join(": ").trim())}</li>`;
+        const normalized = this.normalizeSentence(`${label.trim()}: ${rest.join(": ").trim()}`);
+        return `<li><strong>${this.escape(label.trim())}:</strong> ${this.escape(normalized.replace(`${label.trim()}: `, ""))}</li>`;
       }
-      return `<li>${this.escape(line)}</li>`;
+      return `<li>${this.escape(this.normalizeSentence(line))}</li>`;
     }).join("");
 
     return `<ul class="ksa-bullet-list">${items}</ul>`;
