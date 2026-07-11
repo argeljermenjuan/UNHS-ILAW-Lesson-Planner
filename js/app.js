@@ -37,7 +37,6 @@ const App = {
     this.referenceUpload = document.getElementById("referenceUpload");
     this.uploadReferenceBtn = document.getElementById("uploadReferenceBtn");
     this.clearReferencesBtn = document.getElementById("clearReferencesBtn");
-    this.fetchOnlineReferencesBtn = document.getElementById("fetchOnlineReferencesBtn");
     this.referenceFileList = document.getElementById("referenceFileList");
   },
 
@@ -61,7 +60,6 @@ const App = {
     this.uploadReferenceBtn?.addEventListener("click", () => this.referenceUpload?.click());
     this.referenceUpload?.addEventListener("change", () => this.handleReferenceUpload());
     this.clearReferencesBtn?.addEventListener("click", () => this.clearReferenceFiles());
-    this.fetchOnlineReferencesBtn?.addEventListener("click", () => this.handleOnlineReferenceFetch());
   },
 
   handleInput() {
@@ -262,121 +260,6 @@ const App = {
     this.renderReferenceFiles();
     this.handleInput();
     this.setStatus("Reference materials cleared");
-  },
-
-  async handleOnlineReferenceFetch() {
-    const urls = this.parseOnlineReferenceUrls();
-    if (!urls.length) {
-      this.setStatus("Paste at least one public online reference link.");
-      return;
-    }
-
-    this.setStatus("Fetching online references...");
-    this.fetchOnlineReferencesBtn.disabled = true;
-
-    try {
-      const existingUrls = new Set(this.referenceFiles.map((file) => file.sourceUrl).filter(Boolean));
-      const fetched = await Promise.all(urls
-        .filter((url) => !existingUrls.has(url))
-        .map((url) => this.fetchOnlineReference(url)));
-      const usable = fetched.filter(Boolean);
-
-      this.referenceFiles = [...this.referenceFiles, ...usable];
-      this.renderReferenceFiles();
-      this.handleInput();
-      this.setStatus(`${usable.length} online reference${usable.length === 1 ? "" : "s"} fetched and added. Analyzing lesson details...`);
-      await this.analyzeUploadedLessonDetails();
-    } finally {
-      this.fetchOnlineReferencesBtn.disabled = false;
-    }
-  },
-
-  parseOnlineReferenceUrls() {
-    const value = document.getElementById("onlineReferences")?.value || "";
-    return [...new Set(value
-      .split(/\n|,/)
-      .map((item) => item.trim())
-      .filter((item) => /^https?:\/\//i.test(item))
-      .map((url) => this.normalizeReferenceUrl(url)))];
-  },
-
-  normalizeReferenceUrl(url) {
-    try {
-      const parsed = new URL(url);
-      if (parsed.hostname === "github.com" && parsed.pathname.includes("/blob/")) {
-        const rawPath = parsed.pathname.replace("/blob/", "/");
-        return `https://raw.githubusercontent.com${rawPath}`;
-      }
-      return parsed.href;
-    } catch {
-      return url;
-    }
-  },
-
-  async fetchOnlineReference(url) {
-    const candidates = [
-      url,
-      `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-      this.toReaderUrl(url)
-    ];
-
-    for (const candidate of candidates.filter((item, index, list) => item && list.indexOf(item) === index)) {
-      try {
-        const response = await fetch(candidate);
-        if (!response.ok) continue;
-        const text = await response.text();
-        const cleaned = this.cleanReferenceText(text);
-        if (cleaned.length < 120) continue;
-
-        return {
-          name: this.referenceNameFromUrl(url),
-          type: "Online reference",
-          size: cleaned.length,
-          addedAt: new Date().toISOString(),
-          sourceUrl: url,
-          extractedText: cleaned.slice(0, 50000)
-        };
-      } catch (error) {
-        console.warn("Unable to fetch online reference", candidate, error);
-      }
-    }
-
-    return {
-      name: this.referenceNameFromUrl(url),
-      type: "Online reference - needs teacher review",
-      size: 0,
-      addedAt: new Date().toISOString(),
-      sourceUrl: url,
-      extractedText: ""
-    };
-  },
-
-  toReaderUrl(url) {
-    try {
-      const parsed = new URL(url);
-      return `https://r.jina.ai/http://${parsed.href.replace(/^https?:\/\//i, "")}`;
-    } catch {
-      return url;
-    }
-  },
-
-  cleanReferenceText(text) {
-    return String(text || "")
-      .replace(/<script[\s\S]*?<\/script>/gi, " ")
-      .replace(/<style[\s\S]*?<\/style>/gi, " ")
-      .replace(/<[^>]+>/g, " ")
-      .replace(/\s+/g, " ")
-      .trim();
-  },
-
-  referenceNameFromUrl(url) {
-    try {
-      const parsed = new URL(url);
-      const last = parsed.pathname.split("/").filter(Boolean).pop();
-      return last ? `${last} (${parsed.hostname})` : parsed.hostname;
-    } catch {
-      return url;
-    }
   },
 
   renderReferenceFiles() {

@@ -153,11 +153,7 @@
               <div class="online-reference-tools mt-3">
                 <label class="form-label" for="onlineReferences">Online Reference Links</label>
                 <textarea id="onlineReferences" class="form-control js-field" rows="3" placeholder="Paste public GitHub, DepEd, article, or raw text links. Put one URL per line."></textarea>
-                <button type="button" class="btn btn-outline-success mt-2" id="fetchOnlineReferencesBtn">
-                  <i class="bi bi-globe2"></i>
-                  Fetch Online References
-                </button>
-                <div class="form-text">Public links are read in the browser. GitHub raw/text pages work best; some sites may block access.</div>
+                <div class="form-text">Paste links or reference notes for teacher review. Online fetching is disabled; upload files or paste important text directly when needed.</div>
               </div>
               <div id="referenceFileList" class="reference-file-list">
                 <div class="text-muted">No reference materials uploaded yet.</div>
@@ -220,8 +216,9 @@
                   <input id="reflectionSession5" class="js-field" type="hidden">
                 </div>
                 <div class="col-12">
-                  <label class="form-label" for="teacherInstructions">Teacher Revision, Suggestions, or Special Instructions (Optional)</label>
-                  <textarea id="teacherInstructions" class="form-control js-field" rows="3" placeholder="Add preferred strategies, learner needs, local examples, available resources, or revisions to integrate into the generated plan."></textarea>
+                  <label class="form-label" for="teacherInstructions">Teacher Prompt, Revisions, Suggestions, or Special Instructions (Optional)</label>
+                  <textarea id="teacherInstructions" class="form-control js-field" rows="4" placeholder="Example: Align the activities with Grade 8 learners who need reading support. Use group work, local community examples, HOTS questions, and short formative checks. Make the Learning Experience learner-centered and doable in 50 minutes."></textarea>
+                  <div class="form-text">The AI will use this as the teacher-user prompt for aligning objectives, learning experience, assessment, differentiation, resources, and ways forward.</div>
                 </div>
                 <input id="learnerContext" class="js-field" type="hidden">
                 <input id="preLesson" class="js-field" type="hidden">

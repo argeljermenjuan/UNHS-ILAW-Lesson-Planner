@@ -126,6 +126,8 @@ Rules:
 - Leave day5-related fields empty when the template is 4-day.
 - The aiUse field must mention Puter AI assistance and teacher review/contextualization.
 - Align Learning Competency, unpacked competencies, objectives, activities, assessment, intervention, enrichment, extension, and reflection.
+- Treat Teacher Revision, Suggestions, or Special Instructions as the teacher-user alignment prompt. Integrate it across learner context, KSA objectives, learning experience, assessment, differentiation, resources, ways forward, and reflection.
+- If the teacher-user prompt conflicts with the competency, standards, KSA objectives, or ILAW framework, adjust it while preserving the teacher's instructional intent.
 - Manual teacher entries take precedence over uploaded references and AI recommendations.
 - Avoid generic AI-style wording, repeated statements, and unrelated activities.
 

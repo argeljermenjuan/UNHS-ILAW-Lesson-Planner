@@ -98,7 +98,7 @@ Populate the existing ILAW Lesson Plan template only. Do not modify the template
 
 Generate a concise {sessions}-session lesson plan from the teacher inputs. Follow DepEd-style classroom language, keep activities practical for Philippine secondary classrooms, and preserve any teacher-provided facts.
 
-Required teacher inputs are limited to Topic, Content Standard, Performance Standard, Lesson Objectives, Grade Level, Learning Area/Subject, Term, Language Preference, Language Support, and optional Teacher Revision/Suggestions/Special Instructions. All other lesson plan sections must be intelligently generated.
+Required teacher inputs are limited to Topic, Content Standard, Performance Standard, Lesson Objectives, Grade Level, Learning Area/Subject, Term, Language Preference, Language Support, and optional Teacher Prompt/Revisions/Suggestions/Special Instructions. All other lesson plan sections must be intelligently generated.
 
 File analysis and manual override rules:
 - Uploaded files may include PDF, DOCX, DOC, TXT, XLSX, image/OCR sources, curriculum guides, lesson exemplars, learning activity sheets, teaching guides, and existing DLL/DLP/ILAW files.
@@ -144,7 +144,8 @@ ILAW requirements:
 - Include meaningful integration opportunities for literacy, numeracy, values, digital literacy, financial literacy, environmental awareness, SDGs, emerging technologies, or write N/A when not appropriate.
 - Use only activities explicitly stated in the Lesson Exemplar or source material when such material is provided. If no source activity is provided, use concise teacher-reviewed placeholder activities aligned to the competency.
 - Ensure alignment among Learning Competency, unpacked competencies, objectives, activities, assessment, intervention, enrichment, extension, and reflection.
-- Analyze the optional Teacher Revision, Suggestions, or Special Instructions field as an instructional design enhancement layer. Integrate appropriate suggestions across learner context, learning experiences, assessment, ways forward, integration, resources, references, and reflections. If a suggestion conflicts with the standards/objectives, adjust it while preserving the teacher's intent.
+- Treat the optional Teacher Prompt, Revisions, Suggestions, or Special Instructions field as the teacher-user alignment prompt. Use it to refine learner context, objectives, learning experiences, assessment, differentiation, resources, ways forward, integration, and reflections while preserving curriculum alignment.
+- If the teacher-user prompt conflicts with the MATATAG competency, standards, KSA objectives, or ILAW framework, adjust the request professionally while preserving the teacher's instructional intent.
 - Use realistic, low-cost, learner-centered, contextualized activities appropriate for Philippine public schools.
 - Avoid generic AI-style wording, repeated statements, and unrelated activities.
 
