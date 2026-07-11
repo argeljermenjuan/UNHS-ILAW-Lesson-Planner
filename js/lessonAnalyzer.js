@@ -412,15 +412,57 @@ const LessonAnalyzer = {
 
   suggestActivities(session, concepts, competency, materialActivities = []) {
     const primary = concepts[(session - 1) % concepts.length];
-    const materialFlow = this.pickSessionItems(materialActivities, session, 3);
+    const competencyTarget = this.summarizeCompetencyTarget(competency, primary);
+    const materialFlow = this.pickSessionItems(materialActivities, session, 2)
+      .map((activity) => `Use source activity: ${activity}`);
     const map = {
-      1: [`Begin with a familiar situation or question connected to ${primary}.`, "Use Think-Pair-Share so learners can surface prior knowledge.", "Clarify key terms through short teacher-guided discussion."],
-      2: [`Develop the concept of ${primary} through examples, non-examples, and guided questioning.`, "Let learners complete a concept map or organizer in pairs.", "Process answers as a class and correct misconceptions immediately."],
-      3: [`Guide learners through a sample task involving ${primary}.`, "Let small groups complete a practice activity with feedback checkpoints.", "Ask learners to explain the steps or reasoning they used."],
-      4: [`Present a real-life case or problem involving ${primary}.`, "Let groups analyze options, evaluate evidence, and justify their answer.", "Facilitate sharing and comparison of group reasoning."],
-      5: ["Let learners complete a performance task or final output.", "Use a rubric or checklist for self, peer, and teacher assessment.", "End with reflection and an enrichment or remediation direction."]
+      1: [
+        `Engagement: Answer a quick real-life prompt about ${primary}.`,
+        `Exploration: List prior ideas and questions about ${primary} with a partner.`,
+        `Discussion: Share key terms and clarify misconceptions as a class.`,
+        `Application: Match examples to the competency target: ${competencyTarget}.`,
+        "Generalization: State one rule, pattern, or idea learned.",
+        "Assessment: Complete a three-item diagnostic check.",
+        "Reflection: Name one question to revisit next session."
+      ],
+      2: [
+        `Engagement: Review one learner question from Session 1 about ${primary}.`,
+        `Exploration: Sort examples and non-examples of ${primary} in pairs.`,
+        "Discussion: Explain sorting choices using evidence from the lesson.",
+        `Application: Build a concept map that connects ${primary} to ${competencyTarget}.`,
+        "Generalization: Write a one-sentence summary of the concept.",
+        "Assessment: Submit an exit ticket with one example and explanation.",
+        "Reflection: Identify which idea needs more practice."
+      ],
+      3: [
+        `Engagement: Analyze a short sample task involving ${primary}.`,
+        `Exploration: Try the first step independently, then compare with a partner.`,
+        "Discussion: Explain the process and correct errors collaboratively.",
+        `Application: Complete a guided practice task aligned with ${competencyTarget}.`,
+        "Generalization: Describe when and how the process can be used.",
+        "Assessment: Check work using a brief KSA-aligned checklist.",
+        "Reflection: Note one improvement after feedback."
+      ],
+      4: [
+        `Engagement: Examine a local or real-life case involving ${primary}.`,
+        "Exploration: Identify facts, issues, and possible solutions in groups.",
+        "Discussion: Defend one option using lesson evidence and respectful dialogue.",
+        `Application: Evaluate the case and justify a decision linked to ${competencyTarget}.`,
+        "Generalization: Formulate a principle for similar situations.",
+        "Assessment: Present reasoning using a short rubric.",
+        "Reflection: Explain how evidence changed or strengthened thinking."
+      ],
+      5: [
+        `Engagement: Review success criteria for the performance task on ${primary}.`,
+        "Exploration: Plan the output, roles, materials, and evidence needed.",
+        "Discussion: Give peer suggestions using the rubric language.",
+        `Application: Create or perform an output that demonstrates ${competencyTarget}.`,
+        "Generalization: Connect the output to a real-life transfer situation.",
+        "Assessment: Self-assess and peer-assess using the rubric.",
+        "Reflection: Set one remediation or enrichment goal."
+      ]
     };
-    return this.unique([...materialFlow, ...(map[session] || [`Learning activity aligned with ${competency}`])]).slice(0, 5);
+    return this.unique([...materialFlow, ...(map[session] || [`Application: Complete a learner-centered task aligned with ${competencyTarget}.`])]).slice(0, 7);
   },
 
   pickSessionItems(items = [], session = 1, count = 3) {

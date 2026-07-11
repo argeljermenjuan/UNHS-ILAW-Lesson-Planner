@@ -118,6 +118,9 @@ Rules:
 - For every session, generate three different measurable objectives aligned to Knowledge, Skills, and Attitude/Values. Objectives must not repeat across sessions.
 - Include Knowledge, Skills, and Attitude/Values in objectiveSession fields.
 - Write each day/session field in compact classroom-ready format: Success Criteria, Learning Experience, Teacher Facilitation, Guided Practice, Independent Practice, and Reflection.
+- In Learning Experience, generate short classroom-ready bullets in this sequence: Engagement, Exploration, Discussion, Application, Generalization, Assessment, Reflection.
+- Align each Learning Experience bullet directly with the session Knowledge, Skills, and Attitude/Values objectives.
+- Use clear action verbs, learner-centered tasks, 21st-century skills, HOTS, and achievable class-period activities; avoid repetition and lengthy descriptions.
 - Write each assessmentSession field so it directly measures the session Knowledge, Skills, and Attitude/Values objectives.
 - Write each waysForwardSession field with intervention, remediation, enrichment, extension, and next-lesson preparation based on likely learner performance.
 - Leave day5-related fields empty when the template is 4-day.

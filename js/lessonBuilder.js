@@ -8,7 +8,7 @@ const LessonBuilder = {
       `Skills Objective: ${session.skillsObjective}`,
       `Attitude/Values Objective: ${session.attitudeObjective}`,
       `Success Criteria: ${session.successCriteria.join("; ")}`,
-      `Learning Experience: ${session.learningExperience.join("; ")}`,
+      `Learning Experience:\n${this.formatLearningExperience(session.learningExperience)}`,
       `Learning Tasks: ${session.learningTasks.join("; ")}`,
       `Assessment - Knowledge: ${session.assessment.knowledge}`,
       `Assessment - Skills: ${session.assessment.skills}`,
@@ -112,6 +112,12 @@ const LessonBuilder = {
       `Skills: ${assessment.skills}`,
       `Attitude/Values: ${assessment.attitude}`
     ].join("\n");
+  },
+
+  formatLearningExperience(activities = []) {
+    return activities
+      .map((activity) => `- ${activity}`)
+      .join("\n");
   },
 
   buildSessionFields(sessionPlan = [], prefix, formatter) {

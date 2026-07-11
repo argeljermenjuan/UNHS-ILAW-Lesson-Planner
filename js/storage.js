@@ -40,9 +40,3 @@ const StorageManager = {
     URL.revokeObjectURL(url);
   }
 };
-
-        reader.readAsText(file);
-
-    }
-
-};
