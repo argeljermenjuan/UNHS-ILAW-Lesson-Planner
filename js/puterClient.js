@@ -118,6 +118,7 @@ Rules:
 - For every session, generate three different measurable objectives aligned to Knowledge, Skills, and Attitude/Values. Objectives must not repeat across sessions.
 - Include Knowledge, Skills, and Attitude/Values in objectiveSession fields.
 - Write each day/session field in compact classroom-ready format: Success Criteria, Learning Experience, Teacher Facilitation, Guided Practice, Independent Practice, and Reflection.
+- Treat each day/session field as the FLOW section for that session. Make it exactly four concise bullet points, one complete sentence each, covering the lesson sequence from introduction to assessment.
 - In Learning Experience, generate short classroom-ready bullets in this sequence: Engagement, Exploration, Discussion, Application, Generalization, Assessment, Reflection.
 - Align each Learning Experience bullet directly with the session Knowledge, Skills, and Attitude/Values objectives.
 - Use clear action verbs, learner-centered tasks, 21st-century skills, HOTS, and achievable class-period activities; avoid repetition and lengthy descriptions.
