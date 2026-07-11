@@ -266,7 +266,7 @@ const App = {
     if (!this.referenceFileList) return;
 
     if (!this.referenceFiles.length) {
-      this.referenceFileList.innerHTML = '<div class="text-muted">No reference materials uploaded yet.</div>';
+      this.referenceFileList.innerHTML = `<div class="text-muted">${this.normalizeSentence("No reference materials uploaded yet")}</div>`;
       return;
     }
 
@@ -305,6 +305,12 @@ const App = {
       .replace(/'/g, "&#039;");
   },
 
+  normalizeSentence(text = "") {
+    const trimmed = String(text ?? "").trim().replace(/\s+/g, " ");
+    if (!trimmed) return "";
+    return /[.!?]$/.test(trimmed) ? trimmed : `${trimmed}.`;
+  },
+
   getTemplateMode() {
     return document.querySelector('input[name="templateMode"]:checked')?.value || "5-day";
   },
@@ -323,7 +329,7 @@ const App = {
       this.preview.innerHTML = html;
       PreviewManager.initialize();
     } else {
-      this.preview.innerHTML = '<div class="empty-preview"><div><div class="empty-preview-icon">📝</div><h5>Preview ready</h5><p>Enter the lesson details and generate the ILAW plan.</p></div></div>';
+      this.preview.innerHTML = `<div class="empty-preview"><div><div class="empty-preview-icon">📝</div><h5>${this.normalizeSentence("Preview ready")}</h5><p>${this.normalizeSentence("Enter the lesson details and generate the ILAW plan")}</p></div></div>`;
     }
   },
 
@@ -627,7 +633,7 @@ const App = {
 
   setStatus(message) {
     if (this.statusMessage) {
-      this.statusMessage.textContent = message;
+      this.statusMessage.textContent = this.normalizeSentence(message);
     }
   }
 };
