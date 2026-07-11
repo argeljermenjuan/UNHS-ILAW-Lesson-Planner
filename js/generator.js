@@ -9,7 +9,19 @@ const LessonGenerator = {
   },
 
   formatText(value, fallback = "") {
-    const text = this.escape(value || fallback);
+    const raw = String(value ?? fallback ?? "");
+    const lines = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+    const bulletLines = lines.filter((line) => /^[-*•]\s+/.test(line));
+
+    if (bulletLines.length && bulletLines.length === lines.length) {
+      const items = bulletLines.map((line) => {
+        const content = line.replace(/^[-*•]\s+/, "");
+        return `<li>${this.escape(content)}</li>`;
+      }).join("");
+      return `<ul class="ksa-bullet-list">${items}</ul>`;
+    }
+
+    const text = this.escape(raw);
     return text.replace(/\n/g, "<br>");
   },
 
@@ -17,8 +29,11 @@ const LessonGenerator = {
     return '<span class="blank-entry">To be filled in by the teacher.</span>';
   },
 
-  cell(value, fallback = "") {
-    return `<td>${this.formatText(value, fallback) || this.empty()}</td>`;
+  cell(value, fallback = "", listMode = "text") {
+    const content = listMode === "bullet"
+      ? this.formatKsaBulletList(value, fallback)
+      : this.formatText(value, fallback);
+    return `<td>${content || this.empty()}</td>`;
   },
 
   metadataRow(label, value) {
@@ -42,6 +57,25 @@ const LessonGenerator = {
       value.skills ? `Skills: ${value.skills}` : "",
       value.attitude ? `Attitude/Values: ${value.attitude}` : ""
     ].filter(Boolean).join("\n");
+  },
+
+  formatKsaBulletList(value, fallback = "") {
+    const source = String(value || fallback || "")
+      .split(/\n|\r\n/)
+      .map((line) => line.trim())
+      .filter(Boolean);
+
+    if (!source.length) return "";
+
+    const items = source.map((line) => {
+      const [label, ...rest] = line.split(/:\s*/);
+      if (label && rest.length) {
+        return `<li><strong>${this.escape(label.trim())}:</strong> ${this.escape(rest.join(": ").trim())}</li>`;
+      }
+      return `<li>${this.escape(line)}</li>`;
+    }).join("");
+
+    return `<ul class="ksa-bullet-list">${items}</ul>`;
   },
 
   sessionObjectiveFallback(session, data) {
@@ -75,10 +109,10 @@ const LessonGenerator = {
     const sessions = data.templateMode === "4-day" ? 4 : 5;
     const sessionFields = ["day1", "day2", "day3", "day4", "day5"].slice(0, sessions);
     const sessionHeaders = sessionFields.map((_, index) => `<th>Session ${index + 1}</th>`).join("");
-    const sessionCells = (fieldPrefix, fallbackBuilder) => sessionFields.map((field, index) => {
+    const sessionCells = (fieldPrefix, fallbackBuilder, listMode = "text") => sessionFields.map((field, index) => {
       const value = fieldPrefix ? data[`${fieldPrefix}${index + 1}`] : data[field];
       const fallback = typeof fallbackBuilder === "function" ? fallbackBuilder(index + 1) : fallbackBuilder;
-      return this.cell(value, fallback);
+      return this.cell(value, fallback, listMode);
     }).join("");
 
     const objectives = data.objectives || `By the end of the lesson, learners can explain ${topic}, participate in guided activities, and show understanding of ${competency}.`;
@@ -145,7 +179,7 @@ const LessonGenerator = {
             </tr>
             <tr>
               <th><span>Learning Objectives:</span> Write the smaller knowledge, skills, or tasks learners will work on and show by the end of the sessions.</th>
-              ${sessionCells("objectiveSession", (session) => this.sessionObjectiveFallback(session, data) || objectives)}
+              ${sessionCells("objectiveSession", (session) => this.sessionObjectiveFallback(session, data) || objectives, "bullet")}
             </tr>
             <tr>
               <th><span>Learner Context:</span> Write observations of learners, including strengths, interests, and possible barriers to learning.</th>
@@ -186,7 +220,7 @@ const LessonGenerator = {
             </tr>
             <tr>
               <th><span>Formative Assessment:</span> Create a task, activity, or questions to evaluate learning and provide feedback, with accommodations so all learners can demonstrate understanding.</th>
-              ${sessionCells("assessmentSession", this.formatAssessmentText(assessment))}
+              ${sessionCells("assessmentSession", this.formatAssessmentText(assessment), "bullet")}
             </tr>
             <tr class="annex-section-row">
               <th>Ways Forward</th>
@@ -194,11 +228,11 @@ const LessonGenerator = {
             </tr>
             <tr>
               <th><span>Extended Learning Opportunities:</span> Suggest learning experiences outside class hours to reinforce learning, spark curiosity, or provide support.</th>
-              ${sessionCells("waysForwardSession", waysForward)}
+              ${sessionCells("waysForwardSession", waysForward, "bullet")}
             </tr>
             <tr>
               <th><span>Reflections:</span> Think about what to change for the next session, what learners are interested in exploring, and what to share with co-teachers, parents, school leaders, or an instructional coach.</th>
-              ${sessionCells("reflectionSession", reflections)}
+              ${sessionCells("reflectionSession", reflections, "bullet")}
             </tr>
           </tbody>
         </table>
