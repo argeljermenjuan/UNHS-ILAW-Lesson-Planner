@@ -2,8 +2,8 @@ const PreviewManager = {
   previewContainer: null,
   documentStyles: `
     :root{--primary:#0d6efd;--primary-dark:#0b5ed7;--secondary:#198754;--surface:#ffffff;--surface-soft:#f6f8fc;--border:#dfe7f1;--text:#15304a;--muted:#6c8194;}
-    @page{size:A4 landscape; margin:10mm;}
-    @page WordSection1{size:841.95pt 595.35pt; mso-page-orientation:landscape; margin:18pt 18pt 18pt 18pt;}
+    @page{size:A4 landscape; margin:6mm 8mm;}
+    @page WordSection1{size:841.95pt 595.35pt; mso-page-orientation:landscape; margin:8pt 8pt 8pt 8pt;}
     *{box-sizing:border-box;}
     body{margin:0; font-family:"Poppins","Segoe UI",sans-serif; background:#f6f8fc; color:var(--text);}
     .WordSection1{page:WordSection1;}
@@ -26,6 +26,9 @@ const PreviewManager = {
     .annex-session-table tbody th span{display:block; font-style:italic; font-weight:700; text-decoration:underline;}
     .annex-section-row th{font-weight:700;}
     .annex-section-row td{font-style:italic; background:#fbfffb;}
+    .ksa-bullet-list{margin:0; padding-left:1.2rem; list-style:disc outside; list-style-type:disc; list-style-position:outside;}
+    .ksa-bullet-list li{display:list-item; margin:0 0 4px; color:#000;}
+    .ksa-bullet-list li::marker{color:#000; font-size:0.95rem;}
     .blank-entry{color:#8a8a8a; font-style:italic;}
     .signature-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:28px; margin-top:28px; font-family:Arial,sans-serif;}
     .signature-grid p{margin:0 0 28px; font-size:0.85rem;}
@@ -39,7 +42,9 @@ const PreviewManager = {
     .word-export .annex-preview h3{font-size:9pt; line-height:1.1; text-transform:uppercase;}
     .word-export .annex-school-name{font-size:8pt; line-height:1.1;}
     .word-export .annex-meta-table,.word-export .annex-session-table{margin-bottom:4px; page-break-inside:auto;}
-    .word-export .annex-meta-table th,.word-export .annex-meta-table td,.word-export .annex-session-table th,.word-export .annex-session-table td{padding:2.5pt 3pt; font-size:7.6pt; line-height:1.12; mso-line-height-rule:exactly;}
+    .word-export .annex-meta-table th,.word-export .annex-meta-table td,.word-export .annex-session-table th,.word-export .annex-session-table td{padding:2.5pt 3pt; font-size:7.2pt; line-height:1.1; mso-line-height-rule:exactly;}
+    .word-export .ksa-bullet-list{margin:0; padding-left:8pt;}
+    .word-export .ksa-bullet-list li{margin:0 0 2pt;}
     .word-export .annex-meta-table th{width:20%;}
     .word-export .annex-session-table .annex-row-label,.word-export .annex-session-table tbody th{width:19%;}
     .word-export .annex-section-row td{font-size:7.2pt;}
@@ -47,7 +52,7 @@ const PreviewManager = {
     .word-export .signature-grid p{font-size:7.5pt; margin-bottom:12pt;}
     .word-export .signature-grid strong{min-height:14pt;}
     .word-export .signature-grid span{font-size:7pt;}
-    @media print{body{background:#fff;} .export-preview-shell{border:0; padding:0; background:#fff;}}
+    @media print{html,body{width:100%; height:100%;} body{background:#fff;} .export-preview-shell{border:0; padding:0; background:#fff; overflow:visible;} .annex-preview{max-width:100%;}}
   `,
 
   initialize() {

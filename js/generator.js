@@ -34,10 +34,10 @@ const LessonGenerator = {
     return `<ul class="ksa-bullet-list">${content}</ul>`;
   },
 
-  formatText(value, fallback = "") {
+  formatText(value, fallback = "", options = { bulletize: true }) {
     const raw = String(value ?? fallback ?? "");
     const sentences = this.splitSentences(raw);
-    if (sentences.length) {
+    if (options.bulletize && sentences.length) {
       return this.renderBulletList(sentences);
     }
 
@@ -60,7 +60,7 @@ const LessonGenerator = {
     return `
       <tr>
         <th>${this.escape(label)}</th>
-        <td>${this.formatText(value) || this.empty()}</td>
+        <td>${this.formatText(value, "", { bulletize: false }) || this.empty()}</td>
       </tr>
     `;
   },
@@ -110,11 +110,31 @@ const LessonGenerator = {
     if (lines.length >= 5) return lines[session - 1];
 
     const defaults = {
-      1: `Identify prior knowledge, key terms, and initial ideas about ${topic}.`,
-      2: `Describe important concepts, examples, and relationships involved in ${topic}.`,
-      3: `Apply learned concepts in a guided task aligned with ${competency}.`,
-      4: `Analyze real-life situations involving ${topic} and justify conclusions using evidence.`,
-      5: `Create an output or reflection that demonstrates transfer of learning about ${topic}.`
+      1: [
+        `Knowledge: Identify prior knowledge, key terms, and initial ideas about ${topic}.`,
+        `Skills: Share observations, examples, or questions related to ${topic}.`,
+        `Attitude/Values: Participate respectfully and show curiosity about the lesson.`
+      ].join("\n"),
+      2: [
+        `Knowledge: Describe important concepts, examples, and relationships involved in ${topic}.`,
+        `Skills: Organize and explain ideas about ${topic} using evidence or examples.`,
+        `Attitude/Values: Collaborate with peers and value diverse viewpoints during discussion.`
+      ].join("\n"),
+      3: [
+        `Knowledge: Apply learned concepts in a guided task aligned with ${competency}.`,
+        `Skills: Perform the task using the correct process, tools, and steps.`,
+        `Attitude/Values: Practice responsibility, perseverance, and accuracy while working.`
+      ].join("\n"),
+      4: [
+        `Knowledge: Analyze real-life situations involving ${topic} and justify conclusions using evidence.`,
+        `Skills: Evaluate the quality of responses or solutions based on the task requirements.`,
+        `Attitude/Values: Demonstrate respect for feedback and openness to improvement.`
+      ].join("\n"),
+      5: [
+        `Knowledge: Create an output or reflection that demonstrates transfer of learning about ${topic}.`,
+        `Skills: Present or submit work that clearly communicates understanding and application.`,
+        `Attitude/Values: Show accountability, confidence, and appreciation for learning.`
+      ].join("\n")
     };
 
     return defaults[session];
