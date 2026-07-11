@@ -21,33 +21,43 @@ def load_env_file():
 
 
 def gemini_model():
-    return os.environ.get("GEMINI_MODEL", "gemini-2.0-flash")
+    return os.environ.get("GEMINI_MODEL", "gemini-2.5-pro")
 
 
 def fallback_ai_providers():
+    openrouter_models = [
+        os.environ.get("OPENROUTER_GPT_MODEL", "openai/gpt-5.5"),
+        os.environ.get("OPENROUTER_GEMINI_MODEL", "google/gemini-2.5-pro"),
+        os.environ.get("OPENROUTER_QWEN_MODEL", "qwen/qwen3-235b"),
+    ]
+    groq_models = [
+        os.environ.get("GROQ_QWEN_MODEL", "qwen/qwen3.6-27b"),
+        os.environ.get("GROQ_LLAMA_MODEL", "llama-3.3-70b-versatile"),
+    ]
+
     return [
-        {
-            "name": "Groq",
-            "api_key": os.environ.get("GROQ_API_KEY"),
-            "model": os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile"),
-            "url": "https://api.groq.com/openai/v1/chat/completions",
-        },
-        {
-            "name": "Cerebras",
-            "api_key": os.environ.get("CEREBRAS_API_KEY"),
-            "model": os.environ.get("CEREBRAS_MODEL", "llama-4-scout-17b-16e-instruct"),
-            "url": "https://api.cerebras.ai/v1/chat/completions",
-        },
-        {
-            "name": "OpenRouter",
-            "api_key": os.environ.get("OPENROUTER_API_KEY"),
-            "model": os.environ.get("OPENROUTER_MODEL", "meta-llama/llama-3.3-70b-instruct"),
-            "url": "https://openrouter.ai/api/v1/chat/completions",
-            "extra_headers": {
-                "HTTP-Referer": os.environ.get("OPENROUTER_SITE_URL", "http://localhost:8000"),
-                "X-Title": os.environ.get("OPENROUTER_APP_NAME", "ILAW Teacher Studio"),
-            },
-        },
+        *[
+            {
+                "name": "OpenRouter",
+                "api_key": os.environ.get("OPENROUTER_API_KEY"),
+                "model": model,
+                "url": "https://openrouter.ai/api/v1/chat/completions",
+                "extra_headers": {
+                    "HTTP-Referer": os.environ.get("OPENROUTER_SITE_URL", "http://localhost:8000"),
+                    "X-Title": os.environ.get("OPENROUTER_APP_NAME", "ILAW Teacher Studio"),
+                },
+            }
+            for model in openrouter_models
+        ],
+        *[
+            {
+                "name": "Groq",
+                "api_key": os.environ.get("GROQ_API_KEY"),
+                "model": model,
+                "url": "https://api.groq.com/openai/v1/chat/completions",
+            }
+            for model in groq_models
+        ],
     ]
 
 
@@ -419,9 +429,9 @@ def generate_ai_text(prompt, payload):
         if not provider.get("api_key"):
             continue
         try:
-            return provider["name"], call_openai_compatible(provider, prompt)
+            return f"{provider['name']} ({provider['model']})", call_openai_compatible(provider, prompt)
         except (HTTPError, URLError, TimeoutError, RuntimeError, ValueError, json.JSONDecodeError) as error:
-            errors.append(f"{provider['name']}: {error}")
+            errors.append(f"{provider['name']} {provider['model']}: {error}")
 
     configured = ["Gemini" if os.environ.get("GEMINI_API_KEY") else "", *[
         provider["name"] for provider in fallback_ai_providers() if provider.get("api_key")
