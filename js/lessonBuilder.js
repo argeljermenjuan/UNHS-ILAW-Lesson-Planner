@@ -98,14 +98,13 @@ const LessonBuilder = {
     ].join("\n");
   },
 
-  formatFlowSection(session, sessionNumber) {
-    const opening = `The teacher activates prior knowledge and introduces the objective for ${session.focus[0] || "the lesson"}.`;
-    const exploration = `Learners explore the concept through guided examples, teacher modeling, and collaborative discussion.`;
-    const practice = `Students practice the skill with structured tasks, feedback, and opportunities for pair or group support.`;
-    const assessment = `The teacher checks understanding through a short assessment, clarifies errors, and gathers evidence for next steps.`;
-    return [opening, exploration, practice, assessment]
-      .map((item) => `- ${item}`)
-      .join("\n");
+  formatFlowSection() {
+    return [
+      "- The teacher opens the lesson by activating prior knowledge and clarifying the objective.",
+      "- Learners explore the concept through guided modeling and collaborative discussion.",
+      "- Students practice and apply the skill through structured tasks with teacher support.",
+      "- The teacher checks understanding through quick assessment and immediate feedback."
+    ].join("\n");
   },
 
   formatSessionObjectives(session) {
